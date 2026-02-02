@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Functus v3.0 - Anniversary Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #ece9e6; 
+            --bg-gradient: linear-gradient(to right, #ece9e6, #ffffff);
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --accent: #f59e0b; /* Gold */
+            --danger: #ef4444;
+            --success: #10b981;
+            --text-main: #1e293b;
+            --text-light: #64748b;
+        }
+
+        * { box-sizing: border-box; outline: none; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-gradient); 
+            color: var(--text-main); 
+            margin: 0; padding: 0; 
+            display: flex; flex-direction: column; 
+            height: 100vh; 
+        }
+        
+        /* Glassmorphism Header */
+        header { 
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+        
+        h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+        .badge-v3 { background: var(--accent); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        main { flex: 1; padding: 2rem; overflow-y: auto; max-width: 1200px; margin: 0 auto; width: 100%; }
+        
+        /* Glass Cards */
+        .glass-panel {
+            background: var(--glass-bg);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .row { display: flex; flex-wrap: wrap; gap: 20px; }
+        .col { flex: 1; min-width: 300px; }
+
+        /* Navigation Pills */
+        .nav-container { background: white; padding: 5px; border-radius: 50px; display: inline-flex; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .nav-tab { 
+            padding: 10px 25px; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--text-light); transition: all 0.3s; 
+            display: flex; align-items: center; gap: 8px;
+        }
+        .nav-tab:hover { color: var(--primary); background: #f1f5f9; }
+        .nav-tab.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+
+        /* Forms & Inputs - Modern Style */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-light); margin-bottom: 5px; }
+        input, select { 
+            width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; 
+            font-size: 0.95rem; transition: border-color 0.2s; background: rgba(255,255,255,0.8);
+        }
+        input:focus, select:focus { border-color: var(--primary); background: white; }
+
+        /* Buttons */
+        .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .btn-ghost { background: transparent; color: var(--secondary); border: 1px solid #cbd5e1; }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        /* Limit Progress Bars */
+        .limit-bar-container { margin-top: 10px; }
+        .limit-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; font-weight: 600; }
+        .progress-track { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+
+        /* Planner Items */
+        .planner-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px; background: white; border-radius: 12px; margin-bottom: 10px; 
+            border-left: 5px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .status-safe { border-left-color: var(--success); }
+        .status-danger { border-left-color: var(--danger); }
+        .status-warning { border-left-color: var(--accent); }
+        .status-paid { border-left-color: #cbd5e1; opacity: 0.6; }
+
+        /* Visual Cartão v3.0 */
+        .credit-card-v3 {
+            height: 180px; width: 100%; border-radius: 16px; padding: 20px; color: white;
+            display: flex; flex-direction: column; justify-content: space-between;
+            position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transition: transform 0.3s;
+        }
+        .credit-card-v3:hover { transform: translateY(-5px); }
+        .card-chip { width: 40px; height: 30px; background: rgba(255,255,255,0.3); border-radius: 6px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.4); }
+        .card-number { font-family: 'Courier New', monospace; font-size: 1.3rem; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .card-meta { display: flex; justify-content: space-between; align-items: flex-end; }
+        .card-status-badge { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; }
+
+        /* Skins */
+        .skin-black { background: linear-gradient(135deg, #1a1a1a, #434343); }
+        .skin-blue { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+        .skin-purple { background: linear-gradient(135deg, #654ea3, #eaafc8); }
+        .skin-gold { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); color: #4a3b10; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fa-solid fa-shapes"></i> Functus <span class="badge-v3">v3.0</span></h1>
+    <div style="display: flex; gap: 10px;">
+        <button class="btn btn-gold" onclick="app.recommendCard()"><i class="fa-solid fa-wand-magic-sparkles"></i> Melhor Cartão</button>
+        <button class="btn btn-ghost" onclick="app.exportData()"><i class="fa-solid fa-download"></i> Backup</button>
+        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()"><i class="fa-solid fa-upload"></i> Restaurar</button>
+        <input type="file" id="fileInput" class="hidden" onchange="app.importData(this)">
+    </div>
+</header>
+
+<div style="text-align: center; padding-top: 20px;">
+    <div class="nav-container">
+        <div class="nav-tab active" onclick="app.switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard 3.0</div>
+        <div class="nav-tab" onclick="app.switchTab('planner')"><i class="fa-regular fa-calendar-check"></i> Planner</div>
+        <div class="nav-tab" onclick="app.switchTab('entries')"><i class="fa-solid fa-pen-to-square"></i> Lançar</div>
+        <div class="nav-tab" onclick="app.switchTab('cards')"><i class="fa-regular fa-credit-card"></i> Cartões & Limites</div>
+    </div>
+</div>
+
+<main id="main-content">
+    </main>
+
+<script>
+/**
+ * FUNCTUS v3.0 - ANNIVERSARY EDITION
+ * Features: Sleep Card, Inheritance, Credit Limit Management, UI Overhaul
+ */
+
+const Utils = {
+    uuid: () => Date.now().toString(36) + Math.random().toString(36).substr(2),
+    formatCurrency: (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val),
+    toDate: (str) => new Date(str + 'T12:00:00'),
+    addMonths: (date, months) => { const d = new Date(date); d.setMonth(d.getMonth() + months); return d; },
+    diffDays: (d1, d2) => Math.ceil((new Date(d1).setHours(0,0,0,0) - new Date(d2).setHours(0,0,0,0)) / (864e5)),
+    getTodayStr: () => new Date().toISOString().split('T')[0],
+    formatMonth: (date) => date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+};
+
+const Store = {
+    data: {
+        cards: [], // { id, name, limit, status: 'active'|'sleeping', ... }
+        expenses: [],
+        categories: ["Alimentação", "Mercado", "Água/Luz/Net", "Tributos", "Pets", "Moradia", "Lazer", "Viagens", "Educação", "Filhos", "Saúde", "Streaming", "Escritório"],
+        beneficiaries: ["Geral", "Hugo", "Lívia", "Helena", "Nina", "Lilica"]
+    },
+    
+    init() {
+        const saved = localStorage.getItem('functus_v3');
+        if (saved) {
+            this.data = JSON.parse(saved);
+        } else {
+            // Tenta migrar da v2
+            const old = localStorage.getItem('functus_db_v2');
+            if(old) {
+                this.data = JSON.parse(old);
+                this.migrate();
+            } else {
+                this.seed();
+            }
+        }
+    },
+
+    migrate() {
+        // Atualiza Cards para v3 (add limit e status)
+        this.data.cards.forEach(c => {
+            if(!c.limit) c.limit = 5000; // Limite padrão fictício para migração
+            if(!c.status) c.status = c.active ? 'active' : 'sleeping';
+            delete c.active; // Remove campo antigo v2
+        });
+        localStorage.removeItem('functus_db_v2'); // Limpa v2
+        this.save();
+    },
+
+    save() {
+        localStorage.setItem('functus_v3', JSON.stringify(this.data));
+        if (window.app) window.app.render(); // Reactividade
+    },
+
+    seed() {
+        this.data.cards.push({ 
+            id: 'c1', name: 'XP Infinite', brand: 'Visa', issuer: 'XP', 
+            lastDigits: '99', limit: 20000, closingDay: 5, dueDay: 10, status: 'active', skin: 'skin-black' 
+        });
+        this.save();
+    }
+};
+
+const Ledger = {
+    // Calcula uso do limite em Tempo Real
+    getCardLimitStatus(cardId) {
+        const card = Store.data.cards.find(c => c.id === cardId);
+        if (!card) return { total: 0, used: 0, available: 0 };
+
+        let used = 0;
+        const todayStr = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+        Store.data.expenses.forEach(exp => {
+            if (exp.cardId !== cardId) return;
+            if (exp.type === 'recorrente') return; // Recorrente geralmente não trava limite total, só a fatura
+
+            const totalAmount = parseFloat(exp.value);
+            const totalInst = parseInt(exp.installments) || 1;
+            const parcelValue = totalAmount / totalInst;
+
+            // Quantas parcelas foram PAGAS?
+            // Na v3, verificamos o array paidPeriods
+            const paidCount = exp.paidPeriods ? exp.paidPeriods.length : 0;
+            
+            // O limite tomado é o (Total - Valor Já Quitado)
+            // Se paguei 2 de 10 parcelas, 8 parcelas ainda ocupam limite.
+            const remainingValue = totalAmount - (paidCount * parcelValue);
+            
+            if(remainingValue > 0) used += remainingValue;
+        });
+
+        return {
+            total: parseFloat(card.limit),
+            used: used,
+            available: parseFloat(card.limit) - used
+        };
+    },
+
+    // Lógica do Ledger Mensal (Mantida e refinada da v2.5)
+    getMonthlyLedger(year, month) {
+        const targetYM = `${year}-${String(month).padStart(2, '0')}`;
+        const items = [];
+        let total = 0, totalPaid = 0;
+
+        Store.data.expenses.forEach(exp => {
+            const expDate = Utils.toDate(exp.date);
+            let startOffset = 0;
+            let dueDate = new Date(year, month - 1, expDate.getDate());
+            let cardName = 'Dinheiro';
+
+            if (exp.cardId) {
+                const card = Store.data.cards.find(c => c.id === exp.cardId);
+                // Mesmo se o cartão estiver "dormindo", as contas existem
+                if (card) {
+                    cardName = card.name;
+                    if (expDate.getDate() >= card.closingDay) startOffset = 1;
+                    dueDate = new Date(year, month - 1, card.dueDay);
+                }
+            }
+
+            // Lógica de projeção de parcelas
+            let isApplicable = false;
+            let currentParcel = 0;
+            let note = '';
+            const totalInst = parseInt(exp.installments) || 1;
+
+            if (exp.type === 'recorrente') {
+                if (targetYM >= exp.date.substring(0, 7)) { isApplicable = true; note = 'Recorrente'; }
+            } else {
+                const firstParcelDate = Utils.addMonths(expDate, startOffset);
+                const diff = (year - firstParcelDate.getFullYear()) * 12 + (month - 1 - firstParcelDate.getMonth());
+                if (diff >= 0 && diff < totalInst) {
+                    isApplicable = true;
+                    currentParcel = diff + 1;
+                    note = exp.type === 'parcelado' ? `${currentParcel}/${totalInst}` : 'À Vista';
+                }
+            }
+
+            if (isApplicable) {
+                const val = parseFloat(exp.value) / totalInst;
+                const isPaid = exp.paidPeriods && exp.paidPeriods.includes(targetYM);
+                total += val;
+                if(isPaid) totalPaid += val;
+
+                const days = Utils.diffDays(dueDate, new Date());
+                let status = 'status-safe';
+                if(isPaid) status = 'status-paid';
+                else if(days <= 2) status = 'status-danger';
+                else if(days <= 7) status = 'status-warning';
+
+                items.push({
+                    id: exp.id, desc: exp.description, val, note, 
+                    dueDate, status, isPaid, targetYM, cardName, 
+                    cat: exp.category, ben: exp.beneficiary
+                });
+            }
+        });
+
+        items.sort((a,b) => a.dueDate - b.dueDate);
+        return { items, total, totalPaid, totalDue: total - totalPaid };
+    }
+};
+
+const App = {
+    tab: 'dashboard',
+    dashDate: new Date(),
+
+    init() { Store.init(); this.render(); },
+
+    switchTab(t) { 
+        this.tab = t; 
+        document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll(`.nav-tab[onclick="app.switchTab('${t}')"]`).forEach(el => el.classList.add('active'));
+        this.render(); 
+    },
+
+    // --- RENDERERS ---
+
+    render() {
+        const main = document.getElementById('main-content');
+        main.innerHTML = '';
+        if(this.tab === 'dashboard') this.renderDashboard(main);
+        if(this.tab === 'planner') this.renderPlanner(main);
+        if(this.tab === 'entries') this.renderEntries(main);
+        if(this.tab === 'cards') this.renderCards(main);
+    },
+
+    renderDashboard(el) {
+        // Latu Sensu (Cartões)
+        const activeCards = Store.data.cards.filter(c => c.status === 'active');
+        const limitHtml = activeCards.map(c => {
+            const status = Ledger.getCardLimitStatus(c.id);
+            const pct = Math.min(100, (status.used / status.total) * 100);
+            let color = '#10b981'; // Green
+            if(pct > 50) color = '#f59e0b'; // Yellow
+            if(pct > 85) color = '#ef4444'; // Red
+
+            return `
+                <div style="margin-bottom:15px;">
+                    <div class="limit-info">
+                        <span>${c.name} (${c.issuer})</span>
+                        <span>${Utils.formatCurrency(status.used)} / ${Utils.formatCurrency(status.total)}</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width:${pct}%; background:${color}"></div>
+                    </div>
+                    <div style="text-align:right; font-size:0.7rem; color:#64748b; margin-top:2px">Disponível: ${Utils.formatCurrency(status.available)}</div>
+                </div>
+            `;
+        }).join('');
+
+        // Strictu Senso (Mês Atual vs Passado)
+        const d = this.dashDate;
+        const curr = Ledger.getMonthlyLedger(d.getFullYear(), d.getMonth()+1);
+        const prevD = Utils.addMonths(d, -1);
+        const prev = Ledger.getMonthlyLedger(prevD.getFullYear(), prevD.getMonth()+1);
+        const diff = curr.total - prev.total;
+
+        el.innerHTML = `
+            <div class="row">
+                <div class="col" style="flex:2">
+                    <div class="glass-panel">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                            <button class="btn btn-ghost" onclick="app.navMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                            <div style="text-align:center">
+                                <h2 style="margin:0">${Utils.formatMonth(d)}</h2>
+                                <small style="color:${diff > 0 ? 'var(--danger)' : 'var(--success)'}">
+                                    ${diff > 0 ? '+' : ''}${Utils.formatCurrency(diff)} vs mês anterior
+                                </small>
+                            </div>
+                            <button class="btn btn-ghost" onclick="app.navMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; text-align:center">
+                            <div style="padding:15px; background:white; border-radius:10px;">
+                                <div style="font-size:0.8rem; color:#64748b">TOTAL GASTO</div>
+                                <div style="font-size:1.5rem; font-weight:800; color:var(--primary)">${Utils.formatCurrency(curr.total)}</div>
+                            </div>
+                            <div style="padding:15px; background:white; border-radius:10px;">
+                                <div style="font-size:0.8rem; color:#64748b">A PAGAR</div>
+                                <div style="font-size:1.5rem; font-weight:800; color:var(--danger)">${Utils.formatCurrency(curr.totalDue)}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel">
+                        <h3><i class="fa-solid fa-chart-simple"></i> Top Gastos</h3>
+                        <canvas id="chartCat" style="max-height:250px"></canvas>
+                    </div>
+                </div>
+
+                <div class="col" style="flex:1">
+                    <div class="glass-panel">
+                        <h3><i class="fa-solid fa-gauge-high"></i> Limites (Latu Sensu)</h3>
+                        ${limitHtml || '<p style="color:#888">Nenhum cartão ativo.</p>'}
+                        <p style="font-size:0.75rem; color:#888; margin-top:15px; line-height:1.4">
+                            <i class="fa-solid fa-circle-info"></i> O limite disponível aumenta automaticamente quando você marca uma fatura/conta como "Paga" no Planner.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Render Chart
+        setTimeout(() => {
+            const ctx = document.getElementById('chartCat');
+            if(ctx) {
+                const cats = {};
+                curr.items.forEach(i => cats[i.cat] = (cats[i.cat] || 0) + i.val);
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(cats),
+                        datasets: [{ label: 'R$', data: Object.values(cats), backgroundColor: '#2563eb', borderRadius: 5 }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+            }
+        }, 50);
+    },
+
+    renderEntries(el) {
+        // CORREÇÃO DO SELECT: Filtrando apenas cartões ativos
+        const activeCards = Store.data.cards.filter(c => c.status === 'active');
+        
+        // Debug: Se não houver cartões, avisa
+        let cardOptions = '<option value="" disabled selected>Selecione um cartão...</option>';
+        if(activeCards.length === 0) {
+            cardOptions = '<option value="">Nenhum cartão ativo encontrado!</option>';
+        } else {
+            cardOptions += activeCards.map(c => 
+                `<option value="${c.id}">${c.name} (${c.brand} final ${c.lastDigits})</option>`
+            ).join('');
+        }
+
+        const catOptions = Store.data.categories.map(c => `<option>${c}</option>`).join('');
+        const benOptions = Store.data.beneficiaries.map(b => `<option>${b}</option>`).join('');
+
+        el.innerHTML = `
+            <div class="glass-panel" style="max-width:800px; margin:0 auto">
+                <h3><i class="fa-solid fa-receipt"></i> Novo Lançamento</h3>
+                <form onsubmit="app.addExpense(event)">
+                    <div class="row">
+                        <div class="col"><label>Descrição</label><input type="text" name="desc" required placeholder="Ex: Jantar Comemorativo"></div>
+                        <div class="col"><label>Valor (R$)</label><input type="number" step="0.01" name="value" required placeholder="0,00"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col"><label>Categoria</label><select name="category">${catOptions}</select></div>
+                        <div class="col"><label>Beneficiário</label><select name="beneficiary">${benOptions}</select></div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label>Forma de Pagamento</label>
+                            <select name="type" onchange="app.toggleType(this.value)">
+                                <option value="avista">À vista / Débito / Pix</option>
+                                <option value="cartao_avista">Cartão Crédito (1x)</option>
+                                <option value="parcelado">Parcelado no Cartão</option>
+                                <option value="recorrente">Assinatura Mensal (Recorrente)</option>
+                            </select>
+                        </div>
+                        <div class="col hidden" id="card-select-group">
+                            <label>Cartão</label>
+                            <select name="cardId" id="cardIdSelect">${cardOptions}</select>
+                        </div>
+                    </div>
+                    <div class="row hidden" id="install-group">
+                        <div class="col"><label>Qtd Parcelas</label><input type="number" name="inst" value="1"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Data da Compra</label>
+                        <input type="date" name="date" value="${Utils.getTodayStr()}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center">Salvar Lançamento</button>
+                </form>
+            </div>
+        `;
+    },
+
+    renderCards(el) {
+        // Lista para dropdown de herança (cartões adormecidos)
+        const sleepCards = Store.data.cards.filter(c => c.status === 'sleeping');
+        const inheritOptions = sleepCards.length > 0 
+            ? `<option value="">-- Não herdar nada --</option>` + sleepCards.map(c => `<option value="${c.id}">Herdar de: ${c.name}</option>`).join('')
+            : `<option value="">Sem cartões adormecidos para herdar</option>`;
+
+        el.innerHTML = `
+            <div class="glass-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer" onclick="document.getElementById('newCardForm').classList.toggle('hidden')">
+                    <h3><i class="fa-solid fa-plus-circle"></i> Adicionar Novo Cartão</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                
+                <form id="newCardForm" class="hidden" onsubmit="app.addCard(event)" style="margin-top:20px">
+                    <div class="row">
+                        <div class="col"><label>Apelido</label><input name="name" required placeholder="Ex: Azul Infinite"></div>
+                        <div class="col"><label>Bandeira</label><select name="brand"><option>Visa</option><option>Mastercard</option><option>Elo</option><option>Amex</option></select></div>
+                        <div class="col"><label>Emissor</label><input name="issuer" required placeholder="Ex: Itaú"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col"><label>Final (2 dígitos)</label><input name="last" maxlength="2" required placeholder="00"></div>
+                        <div class="col"><label>Limite Total (R$)</label><input type="number" name="limit" required placeholder="10000"></div>
+                        <div class="col"><label>Visual</label><select name="skin"><option value="skin-black">Black</option><option value="skin-blue">Azul Tech</option><option value="skin-gold">Gold</option><option value="skin-purple">Roxo</option></select></div>
+                    </div>
+                    <div class="row">
+                        <div class="col"><label>Fecha dia</label><input type="number" name="closing" required max="31"></div>
+                        <div class="col"><label>Vence dia</label><input type="number" name="due" required max="31"></div>
+                        <div class="col">
+                            <label style="color:var(--primary)"> <i class="fa-solid fa-link"></i> Herdar Dívidas?</label>
+                            <select name="inheritId">${inheritOptions}</select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top:15px">Cadastrar Cartão</button>
+                </form>
+            </div>
+
+            <h3 style="margin-left:10px; margin-bottom:20px">Meus Cartões</h3>
+            <div class="row">
+                ${Store.data.cards.map(c => `
+                    <div class="col" style="flex: 0 0 320px;">
+                        <div class="credit-card-v3 ${c.skin}" style="${c.status === 'sleeping' ? 'filter:grayscale(1); opacity:0.6' : ''}">
+                            <div class="card-status-badge">
+                                ${c.status === 'active' ? 'ATIVO' : '<i class="fa-solid fa-bed"></i> DORMINDO'}
+                            </div>
+                            <div>
+                                <div style="text-transform:uppercase; font-size:0.8rem; letter-spacing:1px">${c.issuer}</div>
+                                <div style="font-size:1.2rem; font-weight:bold">${c.brand}</div>
+                            </div>
+                            <div class="card-chip"></div>
+                            <div class="card-number">•••• •••• •••• ${c.lastDigits}</div>
+                            <div class="card-meta">
+                                <div>${c.name}</div>
+                                <div style="text-align:right">
+                                    <div style="font-size:0.6rem">LIMITE</div>
+                                    <div>${Utils.formatCurrency(c.limit)}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align:center; margin-top:10px; display:flex; gap:10px; justify-content:center">
+                            ${c.status === 'active' 
+                                ? `<button class="btn btn-ghost" onclick="app.sleepCard('${c.id}')" style="font-size:0.8rem; padding:5px 10px"><i class="fa-solid fa-power-off"></i> Adormecer</button>`
+                                : `<button class="btn btn-success" onclick="app.wakeCard('${c.id}')" style="font-size:0.8rem; padding:5px 10px"><i class="fa-solid fa-bolt"></i> Reativar</button>`
+                            }
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    },
+
+    renderPlanner(el) {
+        // Reusa lógica v2, com visual v3
+        const d = this.dashDate;
+        const ledger = Ledger.getMonthlyLedger(d.getFullYear(), d.getMonth()+1);
+        
+        el.innerHTML = `
+            <div class="glass-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                     <button class="btn btn-ghost" onclick="app.navMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                     <h3>${Utils.formatMonth(d)}</h3>
+                     <button class="btn btn-ghost" onclick="app.navMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div>
+                    ${ledger.items.map(i => `
+                        <div class="planner-item ${i.status}">
+                            <div>
+                                <div style="font-weight:700">${i.desc} <span class="badge-v3" style="background:#64748b">${i.note}</span></div>
+                                <div style="font-size:0.8rem; color:#64748b">${i.cat} • ${i.cardName} • Vence dia ${i.dueDate.getDate()}</div>
+                            </div>
+                            <div style="text-align:right">
+                                <div style="font-weight:700; font-size:1.1rem">${Utils.formatCurrency(i.val)}</div>
+                                <button class="btn ${i.isPaid ? 'btn-ghost' : 'btn-success'}" style="padding:4px 8px; font-size:0.7rem; margin-top:5px" onclick="app.togglePay('${i.id}', '${i.targetYM}')">
+                                    ${i.isPaid ? 'Desfazer' : '<i class="fa-solid fa-check"></i> Pagar'}
+                                </button>
+                            </div>
+                        </div>
+                    `).join('') || '<p style="text-align:center; color:#888">Tudo calmo por aqui.</p>'}
+                </div>
+            </div>
+        `;
+    },
+
+    // --- ACTIONS ---
+
+    toggleType(val) {
+        const isCard = val.includes('cartao') || val === 'parcelado';
+        document.getElementById('card-select-group').classList.toggle('hidden', !isCard);
+        document.getElementById('install-group').classList.toggle('hidden', val !== 'parcelado');
+    },
+
+    addExpense(e) {
+        e.preventDefault();
+        const f = e.target;
+        const type = f.type.value;
+        const cardId = (type.includes('cartao') || type === 'parcelado') ? f.cardId.value : null;
+
+        if((type.includes('cartao') || type === 'parcelado') && !cardId) {
+            return alert("Por favor, selecione um cartão ativo!");
+        }
+
+        Store.data.expenses.push({
+            id: Utils.uuid(), desc: f.desc.value, value: f.value.value, type,
+            category: f.category.value, beneficiary: f.beneficiary.value, date: f.date.value,
+            installments: f.inst ? f.inst.value : 1, cardId, paidPeriods: []
+        });
+        Store.save();
+        alert("Lançamento salvo!");
+        f.reset();
+        this.render();
+    },
+
+    addCard(e) {
+        e.preventDefault();
+        const f = e.target;
+        const newId = Utils.uuid();
+        const inheritFromId = f.inheritId.value;
+
+        // Cria o novo cartão
+        Store.data.cards.push({
+            id: newId, name: f.name.value, brand: f.brand.value, issuer: f.issuer.value,
+            lastDigits: f.last, limit: f.limit.value, skin: f.skin.value,
+            closingDay: parseInt(f.closing.value), dueDay: parseInt(f.due.value),
+            status: 'active'
+        });
+
+        // Lógica de Herança
+        if(inheritFromId) {
+            let count = 0;
+            Store.data.expenses.forEach(exp => {
+                // Transfere apenas despesas que pertenciam ao cartão antigo
+                if(exp.cardId === inheritFromId) {
+                    exp.cardId = newId;
+                    count++;
+                }
+            });
+            alert(`Cartão criado! ${count} lançamentos foram migrados do cartão antigo.`);
+        } else {
+            alert("Cartão criado com sucesso!");
+        }
+
+        Store.save();
+        this.render();
+    },
+
+    sleepCard(id) {
+        if(confirm("Deseja adormecer este cartão? Ele não aparecerá para novas compras, mas seus dados históricos serão mantidos.")) {
+            const c = Store.data.cards.find(x => x.id === id);
+            c.status = 'sleeping';
+            Store.save();
+        }
+    },
+    
+    wakeCard(id) {
+        const c = Store.data.cards.find(x => x.id === id);
+        c.status = 'active';
+        Store.save();
+    },
+
+    togglePay(id, ym) {
+        const exp = Store.data.expenses.find(e => e.id === id);
+        if(!exp.paidPeriods) exp.paidPeriods = [];
+        
+        if(exp.paidPeriods.includes(ym)) exp.paidPeriods = exp.paidPeriods.filter(x => x !== ym);
+        else exp.paidPeriods.push(ym);
+        
+        Store.save();
+    },
+
+    recommendCard() {
+        const active = Store.data.cards.filter(c => c.status === 'active');
+        if(!active.length) return alert("Cadastre um cartão ativo primeiro.");
+        
+        const today = new Date();
+        const day = today.getDate();
+        let best = null, maxDays = -1;
+
+        active.forEach(c => {
+            let dueMonth = (day >= c.closingDay) ? today.getMonth() + 1 : today.getMonth();
+            let dueDate = new Date(today.getFullYear(), dueMonth, c.dueDay);
+            let diff = Utils.diffDays(dueDate, today);
+            if(diff > maxDays) { maxDays = diff; best = c; }
+        });
+
+        alert(`🏆 Melhor Cartão Hoje: ${best.name}\nMotivo: Você paga daqui a ${maxDays} dias.`);
+    },
+
+    navMonth(dir) { this.dashDate = Utils.addMonths(this.dashDate, dir); this.render(); },
+    exportData() { 
+        const blob = new Blob([JSON.stringify(Store.data)], {type: "application/json"});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "functus_v3.json"; a.click(); 
+    },
+    importData(input) {
+        const r = new FileReader();
+        r.onload = e => { Store.data = JSON.parse(e.target.result); Store.save(); location.reload(); };
+        r.readAsText(input.files[0]);
+    }
+};
+
+window.app = App;
+App.init();
+
+</script>
+</body>
+</html>
