@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functus v7.5 - Vavilov Refined</title>
+    <title>Functus v7.0 - Season Finale</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -221,7 +221,7 @@
         }
         .modal-content {
             background: var(--bg-body); color: var(--text-main);
-            width: 800px; max-width: 95%; border-radius: 16px; 
+            width: 600px; max-width: 95%; border-radius: 16px; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.4); padding: 2rem;
             animation: slideUp 0.3s ease; border: 1px solid var(--glass-border);
             max-height: 90vh; overflow-y: auto;
@@ -241,14 +241,9 @@
         .tag-chip i { font-size: 0.9rem; }
         
         .import-list-item {
-            padding: 10px; border-bottom: 1px solid var(--glass-border); 
-            display: grid; 
-            grid-template-columns: 80px 1fr 100px 130px 100px 40px; 
-            gap: 10px; 
-            align-items: center; font-size: 0.85rem;
+            padding: 10px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;
         }
         .import-list-item:last-child { border-bottom: none; }
-        .import-list-item select { padding: 4px; font-size: 0.8rem; margin: 0; }
 
         .hidden { display: none !important; }
 
@@ -259,15 +254,13 @@
             .btn span { display: none; }
             .btn { padding: 10px; }
             .planner-card-container { flex: 0 0 280px; }
-            .import-list-item { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
-            .import-list-item select { width: 100%; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <h1><i class="fa-solid fa-bolt"></i> Functus <span class="badge-v3">v7.5 Finale</span></h1>
+    <h1><i class="fa-solid fa-bolt"></i> Functus <span class="badge-v3">v7.0 Finale</span></h1>
     <div style="display: flex; gap: 10px; align-items: center;">
         <button class="btn btn-primary" onclick="app.openImportModal()" title="Importar Fatura via Texto"><i class="fa-solid fa-paste"></i> <span style="display:inline">Importar</span></button>
         <button class="btn btn-ghost" onclick="app.toggleTheme()" title="Mudar Tema"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
@@ -293,8 +286,11 @@
 <script>
 /**
  * ============================================================================
- * FUNCTUS v7.5 - REFINED VAVILOV
+ * FUNCTUS v7.0 - SEASON FINALE
  * ============================================================================
+ * - Added: Migration/Lost Card Tool (Transfers Debt to New Card)
+ * - Full Vavilov Text Engine
+ * - All Legacy Features Retained
  */
 
 const Utils = {
@@ -345,8 +341,10 @@ const Store = {
         if (saved) {
             this.data = JSON.parse(saved);
         } else {
+            // Try to load from previous versions to keep continuity
             const oldV6 = localStorage.getItem('functus_v6_diamond');
             const oldV5 = localStorage.getItem('functus_v6_megazord');
+            
             if(oldV6) { this.data = JSON.parse(oldV6); this.migrateData(); this.save(); }
             else if(oldV5) { this.data = JSON.parse(oldV5); this.migrateData(); this.save(); }
             else { this.seed(); }
@@ -1310,7 +1308,7 @@ const App = {
     },
 
     /* =================================================================
-     * MÓDULO VAVILOV TEXT - IMPORTAÇÃO VIA COLA DE TEXTO (REFINED)
+     * MÓDULO VAVILOV TEXT - IMPORTAÇÃO VIA COLA DE TEXTO
      * =================================================================
      */
     openImportModal() {
@@ -1328,6 +1326,12 @@ const App = {
                         <label>1. Selecione o Cartão de Destino</label>
                         <select id="importCardId">
                             ${validCards.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label>2. Quem é o dono da fatura?</label>
+                        <select id="importBeneficiary">
+                            ${Store.data.beneficiaries.map(b => `<option>${b}</option>`).join('')}
                         </select>
                     </div>
                 </div>
@@ -1357,6 +1361,7 @@ const App = {
         
         this.importedItems = [];
         // REGEX VAVILOV: Captura Data (DD/MM), Descrição e Valor (R$ XX,XX)
+        // Ignora linhas de saldo/pagamento
         const regex = /(\d{2}\/\d{2})\s+([A-Z0-9\s\*\.\-]+?)\s+(\d{1,2}\/\d{1,2})?\s*(-?[\d\.]+,\d{2})/g;
         
         let match;
@@ -1374,10 +1379,11 @@ const App = {
             let finalDesc = desc;
 
             if (instStr) {
-                finalDesc = `${desc} (${instStr})`; 
+                finalDesc = `${desc} (${instStr})`; // Append parcel info
             }
 
-            const value = parseFloat(valStr.replace(/\./g, '').replace(',', '.'));
+            const value = parseFloat(valStr.replace(/\./g, '').replace(',', '.')); // Fix Brazilian format with thousands separator
+
             const [d, m] = dateStr.split('/');
             const fullDate = `${year}-${m}-${d}`;
 
@@ -1398,26 +1404,12 @@ const App = {
         const btn = document.getElementById('btnConfirmImport');
         const previewDiv = document.getElementById('importPreview');
 
-        const catOpts = Store.data.categories.map(c => `<option>${c}</option>`).join('');
-        const benOpts = Store.data.beneficiaries.map(b => `<option>${b}</option>`).join('');
-
         list.innerHTML = this.importedItems.map((i, idx) => `
-            <div class="import-list-item" id="import-row-${idx}">
-                <div><strong>${i.date}</strong></div>
-                <div style="font-size:0.8rem">${i.desc}</div>
-                <div>${Utils.formatCurrency(i.value)}</div>
-                
-                <select class="imp-cat">
-                    <option value="Outros">Outros</option>
-                    ${catOpts}
-                </select>
-                
-                <select class="imp-ben">
-                    <option value="Geral">Geral</option>
-                    ${benOpts}
-                </select>
-                
-                <div style="text-align:center; cursor:pointer; color:red" onclick="app.removeImportItem(${idx})">X</div>
+            <div class="import-list-item">
+                <div style="flex:1"><strong>${i.date}</strong></div>
+                <div style="flex:3">${i.desc}</div>
+                <div style="flex:1; text-align:right">${Utils.formatCurrency(i.value)}</div>
+                <div style="width:30px; text-align:center; cursor:pointer; color:red" onclick="app.removeImportItem(${idx})">X</div>
             </div>
         `).join('');
 
@@ -1434,26 +1426,20 @@ const App = {
 
     confirmImport() {
         const cardId = document.getElementById('importCardId').value;
+        const beneficiary = document.getElementById('importBeneficiary').value;
+
         if (!cardId) return alert("Selecione um cartão!");
 
         let addedCount = 0;
-        
-        // Loop through the rendered DOM rows to capture the selected Category and Beneficiary for each item
-        this.importedItems.forEach((item, idx) => {
-            const row = document.getElementById(`import-row-${idx}`);
-            if(!row) return; // Should not happen if sync is correct
-
-            const selectedCat = row.querySelector('.imp-cat').value;
-            const selectedBen = row.querySelector('.imp-ben').value;
-
+        this.importedItems.forEach(i => {
             Store.data.expenses.push({
                 id: Utils.uuid(),
-                description: item.desc,
-                value: item.value,
+                description: i.desc,
+                value: i.value,
                 type: 'cartao_avista', 
-                category: selectedCat, 
-                beneficiary: selectedBen,
-                date: item.date,
+                category: 'Outros', 
+                beneficiary: beneficiary,
+                date: i.date,
                 installments: 1,
                 cardId: cardId,
                 paidPeriods: [],
