@@ -2,29 +2,41 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Functus v3.0 - Anniversary Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Functus v4.0 - Banking Grade</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* Light Theme Defaults */
             --bg-body: #ece9e6; 
             --bg-gradient: linear-gradient(to right, #ece9e6, #ffffff);
-            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-bg: rgba(255, 255, 255, 0.85);
             --glass-border: rgba(255, 255, 255, 0.4);
-            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --text-main: #1e293b;
+            --text-light: #64748b;
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
             
             --primary: #2563eb;
             --secondary: #64748b;
-            --accent: #f59e0b; /* Gold */
+            --accent: #f59e0b;
             --danger: #ef4444;
             --success: #10b981;
-            --text-main: #1e293b;
-            --text-light: #64748b;
+            --cancelled: #9ca3af;
         }
 
-        * { box-sizing: border-box; outline: none; }
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-gradient: linear-gradient(to right, #0f172a, #1e293b);
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f1f5f9;
+            --text-light: #94a3b8;
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
         body { 
             font-family: 'Inter', sans-serif; 
@@ -33,100 +45,132 @@
             margin: 0; padding: 0; 
             display: flex; flex-direction: column; 
             height: 100vh; 
+            transition: background 0.3s, color 0.3s;
         }
         
-        /* Glassmorphism Header */
+        /* Header Responsivo */
         header { 
-            background: rgba(255, 255, 255, 0.9);
+            background: var(--glass-bg);
             backdrop-filter: blur(10px);
             padding: 1rem 2rem; 
             display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid var(--glass-border);
             z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
-        .badge-v3 { background: var(--accent); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-v3 { background: var(--accent); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; text-transform: uppercase; }
 
-        main { flex: 1; padding: 2rem; overflow-y: auto; max-width: 1200px; margin: 0 auto; width: 100%; }
+        /* Ajuste Main para Mobile */
+        main { flex: 1; padding: 1rem; overflow-y: auto; max-width: 1200px; margin: 0 auto; width: 100%; }
         
-        /* Glass Cards */
         .glass-panel {
             background: var(--glass-bg);
-            box-shadow: var(--shadow);
+            box-shadow: var(--card-shadow);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             border-radius: 20px;
             border: 1px solid var(--glass-border);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            transition: transform 0.2s ease;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease, background 0.3s;
         }
         
+        /* Grid Responsivo */
         .row { display: flex; flex-wrap: wrap; gap: 20px; }
         .col { flex: 1; min-width: 300px; }
 
-        /* Navigation Pills */
-        .nav-container { background: white; padding: 5px; border-radius: 50px; display: inline-flex; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .nav-tab { 
-            padding: 10px 25px; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--text-light); transition: all 0.3s; 
-            display: flex; align-items: center; gap: 8px;
+        @media (max-width: 768px) {
+            .col { min-width: 100%; }
+            header { padding: 1rem; }
+            h1 { font-size: 1.2rem; }
+            .btn span { display: none; }
+            .btn { padding: 10px; }
         }
-        .nav-tab:hover { color: var(--primary); background: #f1f5f9; }
+
+        /* Navigation Pills */
+        .nav-container { 
+            background: var(--glass-bg); 
+            padding: 5px; border-radius: 50px; display: inline-flex; 
+            box-shadow: var(--card-shadow); margin-bottom: 20px; 
+            max-width: 100%; overflow-x: auto; white-space: nowrap;
+        }
+        .nav-tab { 
+            padding: 10px 25px; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 0.9rem; 
+            color: var(--text-light); transition: all 0.3s; display: flex; align-items: center; gap: 8px;
+        }
+        .nav-tab:hover { color: var(--primary); background: rgba(255,255,255,0.1); }
         .nav-tab.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
 
-        /* Forms & Inputs - Modern Style */
+        /* Inputs adaptados ao tema */
         .form-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-light); margin-bottom: 5px; }
         input, select { 
-            width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; 
-            font-size: 0.95rem; transition: border-color 0.2s; background: rgba(255,255,255,0.8);
+            width: 100%; padding: 12px; border: 2px solid var(--glass-border); border-radius: 10px; 
+            font-size: 0.95rem; transition: border-color 0.2s; 
+            background: rgba(255,255,255,0.5); color: var(--text-main);
         }
-        input:focus, select:focus { border-color: var(--primary); background: white; }
+        [data-theme="dark"] input, [data-theme="dark"] select { background: rgba(0,0,0,0.3); }
+        input:focus, select:focus { border-color: var(--primary); background: var(--glass-bg); }
 
         /* Buttons */
         .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
+        .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-        .btn-ghost { background: transparent; color: var(--secondary); border: 1px solid #cbd5e1; }
-        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-ghost { background: transparent; color: var(--text-main); border: 1px solid var(--text-light); }
+        .btn-danger-pulse { background: var(--danger); color: white; animation: pulse 2s infinite; }
+        .btn-cancel { background: var(--text-light); color: white; }
+        
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
-        /* Limit Progress Bars */
-        .limit-bar-container { margin-top: 10px; }
-        .limit-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; font-weight: 600; }
-        .progress-track { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
+        /* Limit Bars */
+        .progress-track { height: 10px; background: rgba(0,0,0,0.1); border-radius: 5px; overflow: hidden; }
+        [data-theme="dark"] .progress-track { background: rgba(255,255,255,0.1); }
         .progress-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
 
         /* Planner Items */
         .planner-item { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px; background: white; border-radius: 12px; margin-bottom: 10px; 
+            padding: 15px; background: var(--glass-bg); border-radius: 12px; margin-bottom: 10px; 
             border-left: 5px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         .status-safe { border-left-color: var(--success); }
         .status-danger { border-left-color: var(--danger); }
         .status-warning { border-left-color: var(--accent); }
-        .status-paid { border-left-color: #cbd5e1; opacity: 0.6; }
+        .status-paid { border-left-color: var(--text-light); opacity: 0.6; }
 
-        /* Visual Cartão v3.0 */
+        /* Visual Cartão v4.0 */
         .credit-card-v3 {
             height: 180px; width: 100%; border-radius: 16px; padding: 20px; color: white;
             display: flex; flex-direction: column; justify-content: space-between;
-            position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             transition: transform 0.3s;
         }
-        .credit-card-v3:hover { transform: translateY(-5px); }
-        .card-chip { width: 40px; height: 30px; background: rgba(255,255,255,0.3); border-radius: 6px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.4); }
-        .card-number { font-family: 'Courier New', monospace; font-size: 1.3rem; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .card-meta { display: flex; justify-content: space-between; align-items: flex-end; }
         .card-status-badge { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; }
-
         /* Skins */
         .skin-black { background: linear-gradient(135deg, #1a1a1a, #434343); }
         .skin-blue { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
         .skin-purple { background: linear-gradient(135deg, #654ea3, #eaafc8); }
         .skin-gold { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); color: #4a3b10; }
+        .skin-cancelled { background: linear-gradient(135deg, #4b5563, #374151); opacity: 0.8; }
+        .skin-cancelled .card-number { text-decoration: line-through; }
+
+        /* Modal */
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 200;
+        }
+        .modal-content {
+            background: var(--bg-body); color: var(--text-main);
+            width: 500px; max-width: 90%; border-radius: 16px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); padding: 2rem;
+            animation: slideUp 0.3s ease; border: 1px solid var(--glass-border);
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .hidden { display: none !important; }
     </style>
@@ -134,21 +178,23 @@
 <body>
 
 <header>
-    <h1><i class="fa-solid fa-shapes"></i> Functus <span class="badge-v3">v3.0</span></h1>
-    <div style="display: flex; gap: 10px;">
-        <button class="btn btn-gold" onclick="app.recommendCard()"><i class="fa-solid fa-wand-magic-sparkles"></i> Melhor Cartão</button>
-        <button class="btn btn-ghost" onclick="app.exportData()"><i class="fa-solid fa-download"></i> Backup</button>
-        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()"><i class="fa-solid fa-upload"></i> Restaurar</button>
+    <h1><i class="fa-solid fa-shield-halved"></i> Functus <span class="badge-v3">v4.0</span></h1>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="btn btn-ghost" onclick="app.toggleTheme()" title="Mudar Tema"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
+        <button class="btn btn-ghost" onclick="app.showDebtProjection()" title="Fim da Dívida"><i class="fa-solid fa-hourglass-half"></i></button>
+        <button class="btn btn-gold" onclick="app.recommendCard()" title="Melhor Cartão"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+        <button id="btnBackup" class="btn btn-ghost" onclick="app.exportData()" title="Salvar Backup"><i class="fa-solid fa-download"></i></button>
+        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" title="Restaurar"><i class="fa-solid fa-upload"></i></button>
         <input type="file" id="fileInput" class="hidden" onchange="app.importData(this)">
     </div>
 </header>
 
-<div style="text-align: center; padding-top: 20px;">
+<div style="text-align: center; padding-top: 20px; overflow-x: hidden;">
     <div class="nav-container">
-        <div class="nav-tab active" onclick="app.switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard 3.0</div>
+        <div class="nav-tab active" onclick="app.switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</div>
         <div class="nav-tab" onclick="app.switchTab('planner')"><i class="fa-regular fa-calendar-check"></i> Planner</div>
         <div class="nav-tab" onclick="app.switchTab('entries')"><i class="fa-solid fa-pen-to-square"></i> Lançar</div>
-        <div class="nav-tab" onclick="app.switchTab('cards')"><i class="fa-regular fa-credit-card"></i> Cartões & Limites</div>
+        <div class="nav-tab" onclick="app.switchTab('cards')"><i class="fa-regular fa-credit-card"></i> Cartões</div>
     </div>
 </div>
 
@@ -157,8 +203,8 @@
 
 <script>
 /**
- * FUNCTUS v3.0 - ANNIVERSARY EDITION
- * Features: Sleep Card, Inheritance, Credit Limit Management, UI Overhaul
+ * FUNCTUS v4.0 - BANKING GRADE EDITION
+ * Features: Debt Acceleration (Cancel Card), Nominal Vertical Charts, Security Fixes.
  */
 
 const Utils = {
@@ -168,13 +214,19 @@ const Utils = {
     addMonths: (date, months) => { const d = new Date(date); d.setMonth(d.getMonth() + months); return d; },
     diffDays: (d1, d2) => Math.ceil((new Date(d1).setHours(0,0,0,0) - new Date(d2).setHours(0,0,0,0)) / (864e5)),
     getTodayStr: () => new Date().toISOString().split('T')[0],
-    formatMonth: (date) => date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+    formatMonth: (date) => date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+    // Color generator based on string (for category coloring)
+    strToColor: (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+        return '#' + '00000'.substring(0, 6 - c.length) + c;
+    }
 };
 
 const Store = {
     data: {
-        cards: [], // { id, name, limit, status: 'active'|'sleeping', ... }
-        expenses: [],
+        cards: [], expenses: [],
         categories: ["Alimentação", "Mercado", "Água/Luz/Net", "Tributos", "Pets", "Moradia", "Lazer", "Viagens", "Educação", "Filhos", "Saúde", "Streaming", "Escritório"],
         beneficiaries: ["Geral", "Hugo", "Lívia", "Helena", "Nina", "Lilica"]
     },
@@ -184,105 +236,71 @@ const Store = {
         if (saved) {
             this.data = JSON.parse(saved);
         } else {
-            // Tenta migrar da v2
             const old = localStorage.getItem('functus_db_v2');
-            if(old) {
-                this.data = JSON.parse(old);
-                this.migrate();
-            } else {
-                this.seed();
-            }
+            if(old) { this.data = JSON.parse(old); this.migrate(); } else { this.seed(); }
         }
     },
 
     migrate() {
-        // Atualiza Cards para v3 (add limit e status)
         this.data.cards.forEach(c => {
-            if(!c.limit) c.limit = 5000; // Limite padrão fictício para migração
+            if(!c.limit) c.limit = 5000; 
             if(!c.status) c.status = c.active ? 'active' : 'sleeping';
-            delete c.active; // Remove campo antigo v2
+            delete c.active; 
         });
-        localStorage.removeItem('functus_db_v2'); // Limpa v2
+        localStorage.removeItem('functus_db_v2'); 
         this.save();
     },
 
     save() {
         localStorage.setItem('functus_v3', JSON.stringify(this.data));
-        if (window.app) window.app.render(); // Reactividade
+        if (window.app) window.app.render(); 
     },
 
     seed() {
-        this.data.cards.push({ 
-            id: 'c1', name: 'XP Infinite', brand: 'Visa', issuer: 'XP', 
-            lastDigits: '99', limit: 20000, closingDay: 5, dueDay: 10, status: 'active', skin: 'skin-black' 
-        });
+        this.data.cards.push({ id: 'c1', name: 'XP Infinite', brand: 'Visa', issuer: 'XP', lastDigits: '99', limit: 20000, closingDay: 5, dueDay: 10, status: 'active', skin: 'skin-black' });
         this.save();
     }
 };
 
 const Ledger = {
-    // Calcula uso do limite em Tempo Real
     getCardLimitStatus(cardId) {
         const card = Store.data.cards.find(c => c.id === cardId);
         if (!card) return { total: 0, used: 0, available: 0 };
-
         let used = 0;
-        const todayStr = new Date().toISOString().slice(0, 7); // YYYY-MM
-
         Store.data.expenses.forEach(exp => {
             if (exp.cardId !== cardId) return;
-            if (exp.type === 'recorrente') return; // Recorrente geralmente não trava limite total, só a fatura
-
+            if (exp.type === 'recorrente') return; 
             const totalAmount = parseFloat(exp.value);
             const totalInst = parseInt(exp.installments) || 1;
             const parcelValue = totalAmount / totalInst;
-
-            // Quantas parcelas foram PAGAS?
-            // Na v3, verificamos o array paidPeriods
             const paidCount = exp.paidPeriods ? exp.paidPeriods.length : 0;
-            
-            // O limite tomado é o (Total - Valor Já Quitado)
-            // Se paguei 2 de 10 parcelas, 8 parcelas ainda ocupam limite.
             const remainingValue = totalAmount - (paidCount * parcelValue);
-            
             if(remainingValue > 0) used += remainingValue;
         });
-
-        return {
-            total: parseFloat(card.limit),
-            used: used,
-            available: parseFloat(card.limit) - used
-        };
+        return { total: parseFloat(card.limit), used: used, available: parseFloat(card.limit) - used };
     },
 
-    // Lógica do Ledger Mensal (Mantida e refinada da v2.5)
     getMonthlyLedger(year, month) {
         const targetYM = `${year}-${String(month).padStart(2, '0')}`;
         const items = [];
         let total = 0, totalPaid = 0;
-
         Store.data.expenses.forEach(exp => {
             const expDate = Utils.toDate(exp.date);
             let startOffset = 0;
             let dueDate = new Date(year, month - 1, expDate.getDate());
             let cardName = 'Dinheiro';
-
             if (exp.cardId) {
                 const card = Store.data.cards.find(c => c.id === exp.cardId);
-                // Mesmo se o cartão estiver "dormindo", as contas existem
                 if (card) {
                     cardName = card.name;
                     if (expDate.getDate() >= card.closingDay) startOffset = 1;
                     dueDate = new Date(year, month - 1, card.dueDay);
                 }
             }
-
-            // Lógica de projeção de parcelas
             let isApplicable = false;
             let currentParcel = 0;
             let note = '';
             const totalInst = parseInt(exp.installments) || 1;
-
             if (exp.type === 'recorrente') {
                 if (targetYM >= exp.date.substring(0, 7)) { isApplicable = true; note = 'Recorrente'; }
             } else {
@@ -294,29 +312,35 @@ const Ledger = {
                     note = exp.type === 'parcelado' ? `${currentParcel}/${totalInst}` : 'À Vista';
                 }
             }
-
             if (isApplicable) {
                 const val = parseFloat(exp.value) / totalInst;
                 const isPaid = exp.paidPeriods && exp.paidPeriods.includes(targetYM);
                 total += val;
                 if(isPaid) totalPaid += val;
-
                 const days = Utils.diffDays(dueDate, new Date());
                 let status = 'status-safe';
                 if(isPaid) status = 'status-paid';
                 else if(days <= 2) status = 'status-danger';
                 else if(days <= 7) status = 'status-warning';
-
+                
+                // Using description fix here
                 items.push({
-                    id: exp.id, desc: exp.description, val, note, 
+                    id: exp.id, desc: exp.description || exp.desc || "Sem Descrição", val, note, 
                     dueDate, status, isPaid, targetYM, cardName, 
                     cat: exp.category, ben: exp.beneficiary
                 });
             }
         });
-
         items.sort((a,b) => a.dueDate - b.dueDate);
         return { items, total, totalPaid, totalDue: total - totalPaid };
+    },
+    
+    getDebtEndDate(exp) {
+        if (exp.type === 'recorrente') return 'Indeterminado';
+        if (exp.type === 'avista' || exp.type === 'cartao_avista') return Utils.formatDate(exp.date);
+        const total = parseInt(exp.installments);
+        const endDate = Utils.addMonths(Utils.toDate(exp.date), total);
+        return endDate;
     }
 };
 
@@ -324,7 +348,48 @@ const App = {
     tab: 'dashboard',
     dashDate: new Date(),
 
-    init() { Store.init(); this.render(); },
+    init() { 
+        Store.init(); 
+        this.loadTheme();
+        this.checkBackupStatus();
+        this.render(); 
+    },
+
+    toggleTheme() {
+        const body = document.body;
+        const current = body.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        body.setAttribute('data-theme', next);
+        localStorage.setItem('functus_theme', next);
+        this.updateThemeIcon(next);
+        this.render();
+    },
+
+    loadTheme() {
+        const saved = localStorage.getItem('functus_theme') || 'light';
+        document.body.setAttribute('data-theme', saved);
+        this.updateThemeIcon(saved);
+    },
+
+    updateThemeIcon(theme) {
+        const icon = document.getElementById('themeIcon');
+        if(icon) { icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon'; }
+    },
+
+    checkBackupStatus() {
+        const lastBackup = localStorage.getItem('functus_last_backup');
+        const btn = document.getElementById('btnBackup');
+        if (!lastBackup) { btn.classList.add('btn-danger-pulse'); return; }
+        const days = Utils.diffDays(new Date(), new Date(parseInt(lastBackup)));
+        if (days > 15) {
+            btn.classList.remove('btn-ghost');
+            btn.classList.add('btn-danger-pulse');
+            btn.title = `Último backup há ${days} dias!`;
+        } else {
+            btn.classList.remove('btn-danger-pulse');
+            btn.classList.add('btn-ghost');
+        }
+    },
 
     switchTab(t) { 
         this.tab = t; 
@@ -332,8 +397,6 @@ const App = {
         document.querySelectorAll(`.nav-tab[onclick="app.switchTab('${t}')"]`).forEach(el => el.classList.add('active'));
         this.render(); 
     },
-
-    // --- RENDERERS ---
 
     render() {
         const main = document.getElementById('main-content');
@@ -345,35 +408,21 @@ const App = {
     },
 
     renderDashboard(el) {
-        // Latu Sensu (Cartões)
         const activeCards = Store.data.cards.filter(c => c.status === 'active');
         const limitHtml = activeCards.map(c => {
             const status = Ledger.getCardLimitStatus(c.id);
             const pct = Math.min(100, (status.used / status.total) * 100);
-            let color = '#10b981'; // Green
-            if(pct > 50) color = '#f59e0b'; // Yellow
-            if(pct > 85) color = '#ef4444'; // Red
-
+            let color = '#10b981'; if(pct > 50) color = '#f59e0b'; if(pct > 85) color = '#ef4444'; 
             return `
                 <div style="margin-bottom:15px;">
-                    <div class="limit-info">
-                        <span>${c.name} (${c.issuer})</span>
-                        <span>${Utils.formatCurrency(status.used)} / ${Utils.formatCurrency(status.total)}</span>
-                    </div>
-                    <div class="progress-track">
-                        <div class="progress-fill" style="width:${pct}%; background:${color}"></div>
-                    </div>
-                    <div style="text-align:right; font-size:0.7rem; color:#64748b; margin-top:2px">Disponível: ${Utils.formatCurrency(status.available)}</div>
-                </div>
-            `;
+                    <div class="limit-info"><span>${c.name}</span><span>${Math.round(pct)}%</span></div>
+                    <div class="progress-track"><div class="progress-fill" style="width:${pct}%; background:${color}"></div></div>
+                </div>`;
         }).join('');
 
-        // Strictu Senso (Mês Atual vs Passado)
         const d = this.dashDate;
         const curr = Ledger.getMonthlyLedger(d.getFullYear(), d.getMonth()+1);
-        const prevD = Utils.addMonths(d, -1);
-        const prev = Ledger.getMonthlyLedger(prevD.getFullYear(), prevD.getMonth()+1);
-        const diff = curr.total - prev.total;
+        const diff = curr.total - Ledger.getMonthlyLedger(Utils.addMonths(d, -1).getFullYear(), Utils.addMonths(d, -1).getMonth()+1).total;
 
         el.innerHTML = `
             <div class="row">
@@ -383,85 +432,95 @@ const App = {
                             <button class="btn btn-ghost" onclick="app.navMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
                             <div style="text-align:center">
                                 <h2 style="margin:0">${Utils.formatMonth(d)}</h2>
-                                <small style="color:${diff > 0 ? 'var(--danger)' : 'var(--success)'}">
-                                    ${diff > 0 ? '+' : ''}${Utils.formatCurrency(diff)} vs mês anterior
-                                </small>
+                                <small style="color:${diff > 0 ? 'var(--danger)' : 'var(--success)'}">${diff > 0 ? '+' : ''}${Utils.formatCurrency(diff)}</small>
                             </div>
                             <button class="btn btn-ghost" onclick="app.navMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
-                        
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; text-align:center">
-                            <div style="padding:15px; background:white; border-radius:10px;">
-                                <div style="font-size:0.8rem; color:#64748b">TOTAL GASTO</div>
+                            <div style="padding:15px; border:1px solid var(--glass-border); border-radius:10px;">
+                                <div style="font-size:0.8rem; color:var(--text-light)">TOTAL</div>
                                 <div style="font-size:1.5rem; font-weight:800; color:var(--primary)">${Utils.formatCurrency(curr.total)}</div>
                             </div>
-                            <div style="padding:15px; background:white; border-radius:10px;">
-                                <div style="font-size:0.8rem; color:#64748b">A PAGAR</div>
+                            <div style="padding:15px; border:1px solid var(--glass-border); border-radius:10px;">
+                                <div style="font-size:0.8rem; color:var(--text-light)">ABERTO</div>
                                 <div style="font-size:1.5rem; font-weight:800; color:var(--danger)">${Utils.formatCurrency(curr.totalDue)}</div>
                             </div>
                         </div>
                     </div>
-
                     <div class="glass-panel">
-                        <h3><i class="fa-solid fa-chart-simple"></i> Top Gastos</h3>
-                        <canvas id="chartCat" style="max-height:250px"></canvas>
+                        <h3>Gastos Específicos (Nominal)</h3>
+                        <canvas id="chartNominal" style="max-height:300px"></canvas>
                     </div>
                 </div>
-
                 <div class="col" style="flex:1">
                     <div class="glass-panel">
-                        <h3><i class="fa-solid fa-gauge-high"></i> Limites (Latu Sensu)</h3>
-                        ${limitHtml || '<p style="color:#888">Nenhum cartão ativo.</p>'}
-                        <p style="font-size:0.75rem; color:#888; margin-top:15px; line-height:1.4">
-                            <i class="fa-solid fa-circle-info"></i> O limite disponível aumenta automaticamente quando você marca uma fatura/conta como "Paga" no Planner.
-                        </p>
+                        <h3>Limites</h3>
+                        ${limitHtml || '<p style="color:var(--text-light)">Sem cartões ativos.</p>'}
+                    </div>
+                     <div class="glass-panel">
+                        <h3>Por Categoria</h3>
+                        <canvas id="chartCat" style="max-height:200px"></canvas>
                     </div>
                 </div>
             </div>
         `;
         
-        // Render Chart
         setTimeout(() => {
-            const ctx = document.getElementById('chartCat');
-            if(ctx) {
-                const cats = {};
-                curr.items.forEach(i => cats[i.cat] = (cats[i.cat] || 0) + i.val);
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(cats),
-                        datasets: [{ label: 'R$', data: Object.values(cats), backgroundColor: '#2563eb', borderRadius: 5 }]
-                    },
-                    options: { responsive: true, plugins: { legend: { display: false } } }
-                });
-            }
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+
+            // Chart Category
+            const cats = {}; curr.items.forEach(i => cats[i.cat] = (cats[i.cat] || 0) + i.val);
+            new Chart(document.getElementById('chartCat'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(cats),
+                    datasets: [{ data: Object.values(cats), backgroundColor: Object.keys(cats).map(c => Utils.strToColor(c)) }]
+                },
+                options: { plugins: { legend: { display: false } } }
+            });
+
+            // NEW: Chart Nominal (Specific Items)
+            const topItems = [...curr.items].sort((a,b) => b.val - a.val).slice(0, 10);
+            new Chart(document.getElementById('chartNominal'), {
+                type: 'bar',
+                data: {
+                    labels: topItems.map(i => i.desc.substring(0, 15) + (i.desc.length>15?'...':'')),
+                    datasets: [{ 
+                        label: 'Valor', 
+                        data: topItems.map(i => i.val), 
+                        backgroundColor: topItems.map(i => Utils.strToColor(i.cat)), // Color by Category
+                        borderRadius: 5 
+                    }]
+                },
+                options: { 
+                    indexAxis: 'y', // Vertical list (Horizontal bars)
+                    responsive: true, 
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { color: textColor } },
+                        y: { grid: { color: gridColor }, ticks: { color: textColor } }
+                    }
+                }
+            });
         }, 50);
     },
 
     renderEntries(el) {
-        // CORREÇÃO DO SELECT: Filtrando apenas cartões ativos
         const activeCards = Store.data.cards.filter(c => c.status === 'active');
-        
-        // Debug: Se não houver cartões, avisa
-        let cardOptions = '<option value="" disabled selected>Selecione um cartão...</option>';
-        if(activeCards.length === 0) {
-            cardOptions = '<option value="">Nenhum cartão ativo encontrado!</option>';
-        } else {
-            cardOptions += activeCards.map(c => 
-                `<option value="${c.id}">${c.name} (${c.brand} final ${c.lastDigits})</option>`
-            ).join('');
-        }
-
+        let cardOptions = activeCards.length === 0 ? '<option value="">Sem cartões!</option>' : 
+            activeCards.map(c => `<option value="${c.id}">${c.name} (Final ${c.lastDigits})</option>`).join('');
         const catOptions = Store.data.categories.map(c => `<option>${c}</option>`).join('');
         const benOptions = Store.data.beneficiaries.map(b => `<option>${b}</option>`).join('');
 
         el.innerHTML = `
             <div class="glass-panel" style="max-width:800px; margin:0 auto">
-                <h3><i class="fa-solid fa-receipt"></i> Novo Lançamento</h3>
+                <h3>Novo Lançamento</h3>
                 <form onsubmit="app.addExpense(event)">
                     <div class="row">
-                        <div class="col"><label>Descrição</label><input type="text" name="desc" required placeholder="Ex: Jantar Comemorativo"></div>
-                        <div class="col"><label>Valor (R$)</label><input type="number" step="0.01" name="value" required placeholder="0,00"></div>
+                        <div class="col"><label>Descrição</label><input type="text" name="desc" required></div>
+                        <div class="col"><label>Valor (R$)</label><input type="number" step="0.01" name="value" required></div>
                     </div>
                     <div class="row">
                         <div class="col"><label>Categoria</label><select name="category">${catOptions}</select></div>
@@ -469,95 +528,75 @@ const App = {
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label>Forma de Pagamento</label>
+                            <label>Tipo</label>
                             <select name="type" onchange="app.toggleType(this.value)">
-                                <option value="avista">À vista / Débito / Pix</option>
-                                <option value="cartao_avista">Cartão Crédito (1x)</option>
-                                <option value="parcelado">Parcelado no Cartão</option>
-                                <option value="recorrente">Assinatura Mensal (Recorrente)</option>
+                                <option value="avista">À vista / Pix</option>
+                                <option value="cartao_avista">Cartão (1x)</option>
+                                <option value="parcelado">Parcelado</option>
+                                <option value="recorrente">Recorrente</option>
                             </select>
                         </div>
-                        <div class="col hidden" id="card-select-group">
-                            <label>Cartão</label>
-                            <select name="cardId" id="cardIdSelect">${cardOptions}</select>
-                        </div>
+                        <div class="col hidden" id="card-select-group"><label>Cartão</label><select name="cardId">${cardOptions}</select></div>
                     </div>
-                    <div class="row hidden" id="install-group">
-                        <div class="col"><label>Qtd Parcelas</label><input type="number" name="inst" value="1"></div>
-                    </div>
+                    <div class="row hidden" id="install-group"><div class="col"><label>Parcelas</label><input type="number" name="inst" value="1"></div></div>
                     <div class="form-group">
-                        <label>Data da Compra</label>
+                        <label>Data</label>
                         <input type="date" name="date" value="${Utils.getTodayStr()}" required>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center">Salvar Lançamento</button>
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center">Salvar</button>
                 </form>
             </div>
         `;
     },
 
     renderCards(el) {
-        // Lista para dropdown de herança (cartões adormecidos)
         const sleepCards = Store.data.cards.filter(c => c.status === 'sleeping');
         const inheritOptions = sleepCards.length > 0 
-            ? `<option value="">-- Não herdar nada --</option>` + sleepCards.map(c => `<option value="${c.id}">Herdar de: ${c.name}</option>`).join('')
-            : `<option value="">Sem cartões adormecidos para herdar</option>`;
+            ? `<option value="">-- Não herdar --</option>` + sleepCards.map(c => `<option value="${c.id}">Herdar: ${c.name}</option>`).join('')
+            : `<option value="">Sem cartões para herdar</option>`;
 
         el.innerHTML = `
             <div class="glass-panel">
                 <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer" onclick="document.getElementById('newCardForm').classList.toggle('hidden')">
-                    <h3><i class="fa-solid fa-plus-circle"></i> Adicionar Novo Cartão</h3>
+                    <h3><i class="fa-solid fa-plus-circle"></i> Novo Cartão</h3>
                     <i class="fa-solid fa-chevron-down"></i>
                 </div>
-                
                 <form id="newCardForm" class="hidden" onsubmit="app.addCard(event)" style="margin-top:20px">
                     <div class="row">
-                        <div class="col"><label>Apelido</label><input name="name" required placeholder="Ex: Azul Infinite"></div>
+                        <div class="col"><label>Nome</label><input name="name" required></div>
                         <div class="col"><label>Bandeira</label><select name="brand"><option>Visa</option><option>Mastercard</option><option>Elo</option><option>Amex</option></select></div>
-                        <div class="col"><label>Emissor</label><input name="issuer" required placeholder="Ex: Itaú"></div>
+                        <div class="col"><label>Emissor</label><input name="issuer" required></div>
                     </div>
                     <div class="row">
-                        <div class="col"><label>Final (2 dígitos)</label><input name="last" maxlength="2" required placeholder="00"></div>
-                        <div class="col"><label>Limite Total (R$)</label><input type="number" name="limit" required placeholder="10000"></div>
-                        <div class="col"><label>Visual</label><select name="skin"><option value="skin-black">Black</option><option value="skin-blue">Azul Tech</option><option value="skin-gold">Gold</option><option value="skin-purple">Roxo</option></select></div>
+                        <div class="col"><label>Final</label><input name="last" maxlength="2" required></div>
+                        <div class="col"><label>Limite</label><input type="number" name="limit" required></div>
+                        <div class="col"><label>Skin</label><select name="skin"><option value="skin-black">Black</option><option value="skin-blue">Azul</option><option value="skin-gold">Gold</option><option value="skin-purple">Roxo</option></select></div>
                     </div>
                     <div class="row">
-                        <div class="col"><label>Fecha dia</label><input type="number" name="closing" required max="31"></div>
-                        <div class="col"><label>Vence dia</label><input type="number" name="due" required max="31"></div>
-                        <div class="col">
-                            <label style="color:var(--primary)"> <i class="fa-solid fa-link"></i> Herdar Dívidas?</label>
-                            <select name="inheritId">${inheritOptions}</select>
-                        </div>
+                        <div class="col"><label>Fecha</label><input type="number" name="closing" required max="31"></div>
+                        <div class="col"><label>Vence</label><input type="number" name="due" required max="31"></div>
+                        <div class="col"><label>Herança</label><select name="inheritId">${inheritOptions}</select></div>
                     </div>
-                    <button class="btn btn-primary" style="margin-top:15px">Cadastrar Cartão</button>
+                    <button class="btn btn-primary" style="margin-top:15px">Salvar Cartão</button>
                 </form>
             </div>
-
-            <h3 style="margin-left:10px; margin-bottom:20px">Meus Cartões</h3>
+            <h3>Meus Cartões</h3>
             <div class="row">
                 ${Store.data.cards.map(c => `
                     <div class="col" style="flex: 0 0 320px;">
-                        <div class="credit-card-v3 ${c.skin}" style="${c.status === 'sleeping' ? 'filter:grayscale(1); opacity:0.6' : ''}">
+                        <div class="credit-card-v3 ${c.status === 'cancelled' ? 'skin-cancelled' : c.skin}" style="${c.status === 'sleeping' ? 'filter:grayscale(1); opacity:0.6' : ''}">
                             <div class="card-status-badge">
-                                ${c.status === 'active' ? 'ATIVO' : '<i class="fa-solid fa-bed"></i> DORMINDO'}
+                                ${c.status === 'active' ? 'ATIVO' : (c.status === 'sleeping' ? 'DORMINDO' : 'CANCELADO')}
                             </div>
-                            <div>
-                                <div style="text-transform:uppercase; font-size:0.8rem; letter-spacing:1px">${c.issuer}</div>
-                                <div style="font-size:1.2rem; font-weight:bold">${c.brand}</div>
-                            </div>
-                            <div class="card-chip"></div>
+                            <div><div style="font-size:0.8rem">${c.issuer}</div><div style="font-weight:bold">${c.brand}</div></div>
                             <div class="card-number">•••• •••• •••• ${c.lastDigits}</div>
-                            <div class="card-meta">
-                                <div>${c.name}</div>
-                                <div style="text-align:right">
-                                    <div style="font-size:0.6rem">LIMITE</div>
-                                    <div>${Utils.formatCurrency(c.limit)}</div>
-                                </div>
-                            </div>
+                            <div class="card-meta"><div>${c.name}</div><div><div style="font-size:0.6rem">LIMITE</div><div>${Utils.formatCurrency(c.limit)}</div></div></div>
                         </div>
-                        <div style="text-align:center; margin-top:10px; display:flex; gap:10px; justify-content:center">
+                        <div style="text-align:center; margin-top:10px; display:flex; justify-content:center; gap:5px">
                             ${c.status === 'active' 
-                                ? `<button class="btn btn-ghost" onclick="app.sleepCard('${c.id}')" style="font-size:0.8rem; padding:5px 10px"><i class="fa-solid fa-power-off"></i> Adormecer</button>`
-                                : `<button class="btn btn-success" onclick="app.wakeCard('${c.id}')" style="font-size:0.8rem; padding:5px 10px"><i class="fa-solid fa-bolt"></i> Reativar</button>`
+                                ? `<button class="btn btn-ghost" onclick="app.sleepCard('${c.id}')" title="Adormecer"><i class="fa-solid fa-moon"></i></button>
+                                   <button class="btn btn-danger-pulse" onclick="app.cancelCard('${c.id}')" title="CANCELAR (Vence Hoje)"><i class="fa-solid fa-ban"></i></button>`
+                                : (c.status === 'sleeping' ? `<button class="btn btn-success" onclick="app.wakeCard('${c.id}')">Reativar</button>` : '<span>Cancelado</span>')
                             }
                         </div>
                     </div>
@@ -567,10 +606,8 @@ const App = {
     },
 
     renderPlanner(el) {
-        // Reusa lógica v2, com visual v3
         const d = this.dashDate;
         const ledger = Ledger.getMonthlyLedger(d.getFullYear(), d.getMonth()+1);
-        
         el.innerHTML = `
             <div class="glass-panel">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
@@ -582,136 +619,142 @@ const App = {
                     ${ledger.items.map(i => `
                         <div class="planner-item ${i.status}">
                             <div>
-                                <div style="font-weight:700">${i.desc} <span class="badge-v3" style="background:#64748b">${i.note}</span></div>
-                                <div style="font-size:0.8rem; color:#64748b">${i.cat} • ${i.cardName} • Vence dia ${i.dueDate.getDate()}</div>
+                                <div style="font-weight:700">${i.desc} <span class="badge-v3" style="background:var(--secondary)">${i.note}</span></div>
+                                <div style="font-size:0.8rem; color:var(--text-light)">${i.cat} • ${i.cardName} • Dia ${i.dueDate.getDate()}</div>
                             </div>
                             <div style="text-align:right">
                                 <div style="font-weight:700; font-size:1.1rem">${Utils.formatCurrency(i.val)}</div>
                                 <button class="btn ${i.isPaid ? 'btn-ghost' : 'btn-success'}" style="padding:4px 8px; font-size:0.7rem; margin-top:5px" onclick="app.togglePay('${i.id}', '${i.targetYM}')">
-                                    ${i.isPaid ? 'Desfazer' : '<i class="fa-solid fa-check"></i> Pagar'}
+                                    ${i.isPaid ? 'Desfazer' : 'Pagar'}
                                 </button>
                             </div>
                         </div>
-                    `).join('') || '<p style="text-align:center; color:#888">Tudo calmo por aqui.</p>'}
+                    `).join('') || '<p style="text-align:center; color:var(--text-light)">Nada aqui.</p>'}
                 </div>
             </div>
         `;
     },
 
-    // --- ACTIONS ---
+    showDebtProjection() {
+        const debts = Store.data.expenses.filter(e => e.type === 'parcelado');
+        const list = debts.map(d => {
+            const end = Ledger.getDebtEndDate(d);
+            const paid = d.paidPeriods ? d.paidPeriods.length : 0;
+            const total = parseInt(d.installments);
+            const isQuitado = paid >= total;
+            const endStr = end === 'Indeterminado' ? end : end.toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+            return `
+                <div style="padding:15px; border-bottom:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center">
+                    <div><div style="font-weight:bold">${d.description}</div><div style="font-size:0.8rem; color:var(--text-light)">${paid}/${total} Pagas</div></div>
+                    <div style="text-align:right">${isQuitado ? '<span class="badge-v3" style="background:var(--success)">QUITADO</span>' : `<div style="color:var(--primary); font-weight:bold">${endStr}</div>`}</div>
+                </div>`;
+        }).join('');
+        const modalHtml = `
+            <div class="modal-overlay" onclick="this.remove()">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                        <h2 style="margin:0">Fim da Dívida</h2><button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">X</button>
+                    </div>
+                    <div style="max-height:400px; overflow-y:auto">${list || '<p style="text-align:center">Sem dívidas.</p>'}</div>
+                </div>
+            </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    },
 
     toggleType(val) {
         const isCard = val.includes('cartao') || val === 'parcelado';
         document.getElementById('card-select-group').classList.toggle('hidden', !isCard);
         document.getElementById('install-group').classList.toggle('hidden', val !== 'parcelado');
     },
-
+    
+    // CORREÇÃO DO BUG: mapped 'desc' to 'description'
     addExpense(e) {
-        e.preventDefault();
-        const f = e.target;
-        const type = f.type.value;
+        e.preventDefault(); const f = e.target; const type = f.type.value;
         const cardId = (type.includes('cartao') || type === 'parcelado') ? f.cardId.value : null;
-
-        if((type.includes('cartao') || type === 'parcelado') && !cardId) {
-            return alert("Por favor, selecione um cartão ativo!");
-        }
-
+        if((type.includes('cartao') || type === 'parcelado') && !cardId) return alert("Selecione um cartão!");
+        
         Store.data.expenses.push({
-            id: Utils.uuid(), desc: f.desc.value, value: f.value.value, type,
+            id: Utils.uuid(), 
+            description: f.desc.value, // FIXED HERE
+            value: f.value.value, type,
             category: f.category.value, beneficiary: f.beneficiary.value, date: f.date.value,
             installments: f.inst ? f.inst.value : 1, cardId, paidPeriods: []
         });
-        Store.save();
-        alert("Lançamento salvo!");
-        f.reset();
-        this.render();
+        Store.save(); alert("Salvo!"); f.reset(); this.render();
     },
 
     addCard(e) {
-        e.preventDefault();
-        const f = e.target;
-        const newId = Utils.uuid();
-        const inheritFromId = f.inheritId.value;
-
-        // Cria o novo cartão
+        e.preventDefault(); const f = e.target; const newId = Utils.uuid(); const inheritFromId = f.inheritId.value;
         Store.data.cards.push({
             id: newId, name: f.name.value, brand: f.brand.value, issuer: f.issuer.value,
-            lastDigits: f.last, limit: f.limit.value, skin: f.skin.value,
-            closingDay: parseInt(f.closing.value), dueDay: parseInt(f.due.value),
-            status: 'active'
+            lastDigits: f.last.value, limit: f.limit.value, skin: f.skin.value,
+            closingDay: parseInt(f.closing.value), dueDay: parseInt(f.due.value), status: 'active'
         });
-
-        // Lógica de Herança
-        if(inheritFromId) {
-            let count = 0;
-            Store.data.expenses.forEach(exp => {
-                // Transfere apenas despesas que pertenciam ao cartão antigo
-                if(exp.cardId === inheritFromId) {
-                    exp.cardId = newId;
-                    count++;
-                }
-            });
-            alert(`Cartão criado! ${count} lançamentos foram migrados do cartão antigo.`);
-        } else {
-            alert("Cartão criado com sucesso!");
-        }
-
-        Store.save();
-        this.render();
+        if(inheritFromId) { Store.data.expenses.forEach(exp => { if(exp.cardId === inheritFromId) exp.cardId = newId; }); }
+        Store.save(); this.render();
     },
 
-    sleepCard(id) {
-        if(confirm("Deseja adormecer este cartão? Ele não aparecerá para novas compras, mas seus dados históricos serão mantidos.")) {
-            const c = Store.data.cards.find(x => x.id === id);
-            c.status = 'sleeping';
+    sleepCard(id) { if(confirm("Adormecer?")) { Store.data.cards.find(x => x.id === id).status = 'sleeping'; Store.save(); } },
+    wakeCard(id) { Store.data.cards.find(x => x.id === id).status = 'active'; Store.save(); },
+    
+    // NEW: CANCEL LOGIC (Debt Acceleration)
+    cancelCard(id) {
+        if(confirm("ATENÇÃO: Cancelar o cartão fará com que TODAS as parcelas futuras vençam HOJE (Aceleração de Dívida). Continuar?")) {
+            const card = Store.data.cards.find(x => x.id === id);
+            card.status = 'cancelled';
+            
+            // Accelerate debts
+            let count = 0;
+            Store.data.expenses.forEach(exp => {
+                if (exp.cardId === id && exp.type === 'parcelado') {
+                    // Calculate remaining value
+                    const totalInst = parseInt(exp.installments);
+                    const paidCount = exp.paidPeriods ? exp.paidPeriods.length : 0;
+                    if (paidCount < totalInst) {
+                        const parcelValue = parseFloat(exp.value) / totalInst;
+                        const remainingValue = parcelValue * (totalInst - paidCount);
+                        
+                        // Update expense to be a lump sum due today
+                        exp.value = remainingValue;
+                        exp.installments = 1;
+                        exp.type = 'cartao_avista'; // Treated as one-time card payment
+                        exp.date = Utils.getTodayStr(); // Due NOW
+                        exp.paidPeriods = []; // Reset paid status for the new lump sum
+                        exp.description += " (Antecipado)";
+                        count++;
+                    }
+                }
+            });
+            
+            alert(`Cartão cancelado. ${count} dívidas foram antecipadas para o vencimento atual.`);
             Store.save();
         }
     },
-    
-    wakeCard(id) {
-        const c = Store.data.cards.find(x => x.id === id);
-        c.status = 'active';
-        Store.save();
-    },
 
     togglePay(id, ym) {
-        const exp = Store.data.expenses.find(e => e.id === id);
-        if(!exp.paidPeriods) exp.paidPeriods = [];
-        
-        if(exp.paidPeriods.includes(ym)) exp.paidPeriods = exp.paidPeriods.filter(x => x !== ym);
-        else exp.paidPeriods.push(ym);
-        
+        const exp = Store.data.expenses.find(e => e.id === id); if(!exp.paidPeriods) exp.paidPeriods = [];
+        if(exp.paidPeriods.includes(ym)) exp.paidPeriods = exp.paidPeriods.filter(x => x !== ym); else exp.paidPeriods.push(ym);
         Store.save();
     },
-
     recommendCard() {
         const active = Store.data.cards.filter(c => c.status === 'active');
-        if(!active.length) return alert("Cadastre um cartão ativo primeiro.");
-        
-        const today = new Date();
-        const day = today.getDate();
-        let best = null, maxDays = -1;
-
+        if(!active.length) return alert("Cadastre cartão primeiro.");
+        const today = new Date(); const day = today.getDate(); let best = null, maxDays = -1;
         active.forEach(c => {
             let dueMonth = (day >= c.closingDay) ? today.getMonth() + 1 : today.getMonth();
             let dueDate = new Date(today.getFullYear(), dueMonth, c.dueDay);
             let diff = Utils.diffDays(dueDate, today);
             if(diff > maxDays) { maxDays = diff; best = c; }
         });
-
-        alert(`🏆 Melhor Cartão Hoje: ${best.name}\nMotivo: Você paga daqui a ${maxDays} dias.`);
+        alert(`🏆 Melhor Hoje: ${best.name} (Paga em ${maxDays} dias)`);
     },
-
     navMonth(dir) { this.dashDate = Utils.addMonths(this.dashDate, dir); this.render(); },
     exportData() { 
         const blob = new Blob([JSON.stringify(Store.data)], {type: "application/json"});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "functus_v3.json"; a.click(); 
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "functus_v4_backup.json"; a.click(); 
+        localStorage.setItem('functus_last_backup', Date.now()); this.checkBackupStatus();
     },
-    importData(input) {
-        const r = new FileReader();
-        r.onload = e => { Store.data = JSON.parse(e.target.result); Store.save(); location.reload(); };
-        r.readAsText(input.files[0]);
-    }
+    importData(input) { const r = new FileReader(); r.onload = e => { Store.data = JSON.parse(e.target.result); Store.save(); location.reload(); }; r.readAsText(input.files[0]); }
 };
 
 window.app = App;
