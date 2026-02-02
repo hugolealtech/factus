@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functus v6.2 Platinum</title>
+    <title>Functus v6.3 - Megazord Diamond</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <style>
         /* * =========================================
@@ -18,7 +18,7 @@
             /* Light Theme Defaults */
             --bg-body: #ece9e6; 
             --bg-gradient: linear-gradient(to right, #ece9e6, #ffffff);
-            --glass-bg: rgba(255, 255, 255, 0.90); /* Levemente mais opaco para leitura */
+            --glass-bg: rgba(255, 255, 255, 0.90);
             --glass-border: rgba(255, 255, 255, 0.6);
             --text-main: #1e293b;
             --text-light: #64748b;
@@ -73,7 +73,7 @@
         main { flex: 1; padding: 1rem; overflow-y: auto; max-width: 1200px; margin: 0 auto; width: 100%; }
         
         /* * =========================================
-         * COMPONENTS
+         * COMPONENTS: PANELS
          * =========================================
          */
         .glass-panel {
@@ -135,21 +135,70 @@
         .status-warning { border-left-color: var(--accent); }
         .status-paid { border-left-color: var(--text-light); opacity: 0.6; filter: grayscale(0.8); }
 
+        /* * =========================================
+         * COMPONENTS: PREMIUM CARDS (VISUAL UPGRADE)
+         * =========================================
+         */
         .credit-card-v3 {
-            height: 180px; width: 100%; border-radius: 16px; padding: 20px; color: white;
+            height: 190px; width: 100%; border-radius: 16px; padding: 25px; color: white;
             display: flex; flex-direction: column; justify-content: space-between;
-            position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); transition: transform 0.3s;
+            position: relative; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
+            transition: transform 0.3s, box-shadow 0.3s;
+            font-family: 'Share Tech Mono', monospace; /* Fonte estilo cartão */
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .card-status-badge { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; }
+        .credit-card-v3:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         
-        .skin-black { background: linear-gradient(135deg, #1a1a1a, #434343); }
-        .skin-blue { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
-        .skin-purple { background: linear-gradient(135deg, #654ea3, #eaafc8); }
-        .skin-gold { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); color: #4a3b10; }
-        .skin-cancelled { background: linear-gradient(135deg, #4b5563, #374151); opacity: 0.8; }
-        .skin-cancelled .card-number { text-decoration: line-through; }
+        /* Efeito de Brilho/Holografia */
+        .credit-card-v3::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 200%; height: 200%;
+            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .card-status-badge { 
+            position: absolute; top: 20px; right: 20px; 
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; 
+            text-transform: uppercase; font-family: 'Inter', sans-serif;
+        }
+
+        /* Simulação de Chip e Contactless */
+        .card-chip {
+            width: 40px; height: 30px; background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+            border-radius: 5px; margin-bottom: 10px; position: relative; overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.2);
+        }
+        .card-chip::after {
+            content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: rgba(0,0,0,0.2);
+        }
+        .card-chip::before {
+            content: ''; position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: rgba(0,0,0,0.2);
+        }
+
+        .card-contactless {
+            position: absolute; top: 60px; right: 20px; font-size: 1.5rem; opacity: 0.8;
+        }
+
+        .card-number { font-size: 1.4rem; letter-spacing: 2px; text-shadow: 0 2px 2px rgba(0,0,0,0.5); }
+        .card-holder { text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; }
+        .card-meta-label { font-size: 0.6rem; opacity: 0.8; font-family: 'Inter', sans-serif; }
+
+        /* Skins Refinadas */
+        .skin-black { background: linear-gradient(135deg, #2b2b2b 0%, #000000 100%); }
+        .skin-blue { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
+        .skin-purple { background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); }
+        .skin-gold { background: linear-gradient(135deg, #CAC531 0%, #F3F9A7 100%); color: #4a3b10; text-shadow: none; }
+        .skin-gold .card-number { text-shadow: 0 1px 1px rgba(255,255,255,0.4); }
+        .skin-platinum { background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%); } /* Nova Skin */
+        .skin-cancelled { background: linear-gradient(135deg, #4b5563, #374151); opacity: 0.8; filter: grayscale(1); }
+        .skin-cancelled .card-number { text-decoration: line-through; color: #ef4444; }
         .skin-expired { background: linear-gradient(135deg, #7f1d1d, #450a0a); border: 2px solid #ef4444; }
 
+        /* * =========================================
+         * MODALS & UTILS
+         * =========================================
+         */
         .modal-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
@@ -189,7 +238,7 @@
 <body>
 
 <header>
-    <h1><i class="fa-solid fa-bolt"></i> Functus <span class="badge-v3">Platinum</span></h1>
+    <h1><i class="fa-solid fa-bolt"></i> Functus <span class="badge-v3">Diamond</span></h1>
     <div style="display: flex; gap: 10px; align-items: center;">
         <button class="btn btn-ghost" onclick="app.toggleTheme()" title="Mudar Tema"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
         <button class="btn btn-ghost" onclick="app.showDebtProjection()" title="Até quando eu pago?"><i class="fa-solid fa-hourglass-half"></i></button>
@@ -214,14 +263,13 @@
 <script>
 /**
  * ============================================================================
- * FUNCTUS v6.2 - MEGAZORD PLATINUM EDITION
+ * FUNCTUS v6.3 - MEGAZORD DIAMOND EDITION
  * ============================================================================
- * Updates:
- * 1. Card Cancellation Acceleration: Ability to mark card as cancelled and immediately
- * accelerate all future installments to the current date.
- * 2. Subscription Management: Ability to "Pause" a subscription (skip months) or
- * "Cancel" (terminate effective date) without deleting history.
- * 3. Expanded Codebase: Verbose logic for maximum control and stability.
+ * Major Overhaul:
+ * 1. Visuals: Re-introduced "Premium" look for cards with chips, textures, and 
+ * correct 4-digit formatting.
+ * 2. Hybrid Subscription: "Recorrente" type now accepts a Credit Card connection.
+ * Logic updated to calculate due dates based on card closing if linked.
  */
 
 const Utils = {
@@ -253,7 +301,7 @@ const Utils = {
 };
 
 const Store = {
-    DB_KEY: 'functus_v6_platinum',
+    DB_KEY: 'functus_v6_diamond',
     
     data: {
         cards: [], 
@@ -272,41 +320,31 @@ const Store = {
         if (saved) {
             this.data = JSON.parse(saved);
         } else {
-            // Migração de Versões Anteriores (Megazord v6.0 ou Antigas)
-            const oldV6 = localStorage.getItem('functus_v6_megazord');
+            const oldV6 = localStorage.getItem('functus_v6_platinum');
+            const oldV5 = localStorage.getItem('functus_v6_megazord');
             const oldV3 = localStorage.getItem('functus_v3');
             
-            if(oldV6) {
-                 this.data = JSON.parse(oldV6);
-                 this.migrateData(); this.save();
-            } else if (oldV3) {
-                this.data = JSON.parse(oldV3);
-                this.migrateData(); this.save();
-            } else {
-                this.seed();
-            }
+            // Cascading Migration
+            if(oldV6) { this.data = JSON.parse(oldV6); this.migrateData(); this.save(); }
+            else if(oldV5) { this.data = JSON.parse(oldV5); this.migrateData(); this.save(); }
+            else if (oldV3) { this.data = JSON.parse(oldV3); this.migrateData(); this.save(); }
+            else { this.seed(); }
         }
     },
 
     migrateData() {
-        // Normalização de Cartões
         this.data.cards.forEach(c => {
-            if (c.active !== undefined) {
-                c.status = c.active ? 'active' : 'sleeping';
-                delete c.active;
-            }
+            if (c.active !== undefined) { c.status = c.active ? 'active' : 'sleeping'; delete c.active; }
             if (!c.status) c.status = 'active';
             if (!c.limit) c.limit = 5000;
             if (!c.skin) c.skin = 'skin-black';
         });
 
-        // Normalização de Despesas para suportar Pausa/Cancelamento
         this.data.expenses.forEach(e => {
             if (e.type === 'recorrente') {
                 if (e.isVariable === undefined) e.isVariable = false;
-                // Novos campos para controle de assinatura
-                if (!e.pausedPeriods) e.pausedPeriods = []; // Lista de YYYY-MM pulados
-                if (!e.terminationDate) e.terminationDate = null; // Data de cancelamento definitivo
+                if (!e.pausedPeriods) e.pausedPeriods = []; 
+                if (!e.terminationDate) e.terminationDate = null; 
             }
             if (!e.variations) e.variations = {};
         });
@@ -335,6 +373,7 @@ const Ledger = {
         let used = 0;
         Store.data.expenses.forEach(exp => {
             if (exp.cardId !== cardId) return;
+            // Recorrentes em cartão não consomem limite permanentemente (só a fatura atual)
             if (exp.type === 'recorrente') return; 
 
             const totalAmount = parseFloat(exp.value);
@@ -361,12 +400,20 @@ const Ledger = {
             let dueDate;
             let cardName = 'Dinheiro/Boleto'; 
             
-            // Definição da Data de Vencimento
+            // *** LÓGICA DE CÁLCULO DE DATA DE VENCIMENTO UNIFICADA ***
+            // Agora verifica se TEM cartão, independente de ser parcelado ou recorrente
             if (exp.cardId) {
                 const card = Store.data.cards.find(c => c.id === exp.cardId);
                 if (card) {
                     cardName = card.name;
-                    if (expDate.getDate() >= card.closingDay) startOffset = 1;
+                    // Lógica para Recorrente no Cartão:
+                    // Se é recorrente, a "data de compra" virtual é o dia do cadastro mas no mês atual
+                    let purchaseDay = expDate.getDate();
+                    
+                    // Se a data de compra virtual é depois do fechamento, cai no próximo mês
+                    if (purchaseDay >= card.closingDay) startOffset = 1;
+                    
+                    // A data de vencimento é a fatura do cartão
                     dueDate = new Date(year, month - 1, card.dueDay);
                 } else {
                      dueDate = new Date(year, month - 1, expDate.getDate());
@@ -381,23 +428,14 @@ const Ledger = {
             const totalInst = parseInt(exp.installments) || 1;
             
             if (exp.type === 'recorrente') {
-                // VERIFICAÇÃO DE CANCELAMENTO E PAUSA (NOVO)
-                // 1. Se tem data de término e o mês atual é maior que ela, ignora.
-                if (exp.terminationDate && targetYM > exp.terminationDate) {
-                    return; 
-                }
-                
-                // 2. Se o mês atual está na lista de pausas, ignora.
-                if (exp.pausedPeriods && exp.pausedPeriods.includes(targetYM)) {
-                    return; 
-                }
+                if (exp.terminationDate && targetYM > exp.terminationDate) return; 
+                if (exp.pausedPeriods && exp.pausedPeriods.includes(targetYM)) return; 
 
                 if (targetYM >= exp.date.substring(0, 7)) { 
                     isApplicable = true; 
                     note = 'Recorrente'; 
                 }
             } else {
-                // Lógica de Parcelas
                 const firstParcelDate = Utils.addMonths(expDate, startOffset);
                 const diff = (year - firstParcelDate.getFullYear()) * 12 + (month - 1 - firstParcelDate.getMonth());
                 
@@ -435,7 +473,7 @@ const Ledger = {
                     desc: exp.description || "Sem Descrição", 
                     val, note, dueDate, status, isPaid, targetYM, cardName, 
                     cat: exp.category, ben: exp.beneficiary, 
-                    type: exp.type, // Necessário para saber se mostra botão de gerenciar
+                    type: exp.type,
                     isVariable: exp.isVariable, isEstimate: isEstimate
                 });
             }
@@ -630,7 +668,7 @@ const App = {
                     <div class="tag-chip" onclick="app.quickFill('Energia Elétrica', 'Água/Luz/Net')"><i class="fa-solid fa-bolt"></i> Luz</div>
                     <div class="tag-chip" onclick="app.quickFill('Abastecimento', 'Veículo: Combustível', 'avista')"><i class="fa-solid fa-gas-pump"></i> Combustível</div>
                     <div class="tag-chip" onclick="app.quickFill('Internet', 'Água/Luz/Net')"><i class="fa-solid fa-wifi"></i> Internet</div>
-                    <div class="tag-chip" onclick="app.quickFill('Aluguel', 'Moradia')"><i class="fa-solid fa-house"></i> Aluguel</div>
+                    <div class="tag-chip" onclick="app.quickFill('Netflix', 'Streaming', 'recorrente')"><i class="fa-brands fa-netflix"></i> Netflix</div>
                     <div class="tag-chip" onclick="app.quickFill('Manutenção', 'Veículo: Manutenção', 'avista')"><i class="fa-solid fa-wrench"></i> Manutenção</div>
                 </div>
 
@@ -657,12 +695,15 @@ const App = {
                                 <option value="cartao_avista">Cartão (1x)</option>
                                 <option value="parcelado">Parcelado (Cartão)</option>
                                 <option value="boleto_parcelado">Carnê / Boleto Parcelado</option>
-                                <option value="recorrente">Recorrente</option>
+                                <option value="recorrente">Recorrente / Assinatura</option>
                             </select>
                         </div>
                         <div class="col hidden" id="card-select-group">
-                            <label>Cartão</label>
-                            <select name="cardId">${cardOptions}</select>
+                            <label>Cartão (Opcional para Recorrente)</label>
+                            <select name="cardId">
+                                <option value="">-- Sem Cartão (Débito/Boleto) --</option>
+                                ${validCards.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                            </select>
                         </div>
                     </div>
                     <div class="row hidden" id="install-group">
@@ -719,8 +760,10 @@ const App = {
                                 <option value="skin-blue">Azul</option>
                                 <option value="skin-gold">Gold</option>
                                 <option value="skin-purple">Roxo</option>
+                                <option value="skin-platinum">Platinum (Novo)</option>
                             </select>
                         </div>
+                        <div class="col"><label>Final (4 Dígitos)</label><input name="last" maxlength="4" placeholder="Ex: 9876" required></div>
                     </div>
                     <button class="btn btn-primary" style="margin-top:10px">Salvar</button>
                 </form>
@@ -730,17 +773,27 @@ const App = {
                     <div class="col" style="flex:0 0 320px">
                         <div class="credit-card-v3 ${c.skin || 'skin-black'}" style="${c.status === 'sleeping' ? 'filter:grayscale(1); opacity:0.6' : ''}">
                             <div class="card-status-badge">${c.status === 'active' ? 'ATIVO' : 'INATIVO'}</div>
+                            <div class="card-chip"></div>
+                            <div class="card-contactless"><i class="fa-solid fa-wifi"></i></div>
                             <div>
-                                <div style="font-size:0.8rem">${c.issuer || 'Banco'}</div>
-                                <div style="font-weight:bold">${c.brand || 'Card'}</div>
+                                <div style="font-size:0.9rem; letter-spacing:1px; text-transform:uppercase">${c.issuer || 'Banco'}</div>
+                                <div style="font-weight:bold; font-size:1.1rem; font-style:italic">${c.brand || 'Card'}</div>
                             </div>
-                            <div class="card-number">•••• ${c.lastDigits || '00'}</div>
+                            <div class="card-number">•••• •••• •••• ${c.lastDigits || '0000'}</div>
                             <div class="card-meta">
-                                <div>${c.name}</div>
-                                <div><small>LIMITE</small> ${Utils.formatCurrency(c.limit)}</div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-end">
+                                    <div>
+                                        <div class="card-meta-label">TITULAR</div>
+                                        <div class="card-holder">${c.name}</div>
+                                    </div>
+                                    <div style="text-align:right">
+                                        <div class="card-meta-label">LIMITE</div>
+                                        <div>${Utils.formatCurrency(c.limit)}</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div style="text-align:center; margin-top:5px">
+                        <div style="text-align:center; margin-top:15px; display:flex; gap:10px; justify-content:center">
                             <button class="btn btn-ghost" onclick="app.editCard('${c.id}')">Editar</button>
                             <button class="btn btn-ghost" onclick="app.toggleCardStatus('${c.id}')">${c.status === 'active' ? 'Adormecer' : 'Ativar'}</button>
                             <button class="btn btn-ghost" onclick="app.cancelCard('${c.id}')" style="color:var(--danger)" title="Cancelar e Acelerar Faturas"><i class="fa-solid fa-ban"></i></button>
@@ -765,7 +818,6 @@ const App = {
                             `<button class="btn btn-ghost" onclick="app.togglePay('${i.id}', '${i.targetYM}')">Desfazer</button>` : 
                             (i.isEstimate ? `<button class="btn btn-info" onclick="app.confirmValue('${i.id}', '${i.targetYM}', ${i.val})">Definir</button>` : `<button class="btn btn-success" onclick="app.togglePay('${i.id}', '${i.targetYM}')">Pagar</button>`);
                         
-                        // Botão de Gerenciar Assinatura (Somente para Recorrentes)
                         let manageBtn = '';
                         if(i.type === 'recorrente') {
                             manageBtn = `<button class="btn btn-ghost" onclick="app.manageSubscription('${i.id}', '${i.targetYM}')" title="Gerenciar Assinatura"><i class="fa-solid fa-gear"></i></button>`;
@@ -791,19 +843,23 @@ const App = {
             </div>`;
     },
 
-    // --- LÓGICA DE FORMULÁRIO (TOGGLES) ---
+    // --- LÓGICA DE FORMULÁRIO (TOGGLES ATUALIZADOS) ---
     toggleType(val) {
         const isCard = val.includes('cartao') || val === 'parcelado'; 
         const isRecurrent = val === 'recorrente';
         const isInstallment = val === 'parcelado' || val === 'boleto_parcelado';
         
-        document.getElementById('card-select-group').classList.toggle('hidden', !isCard);
+        // UPDATE RECORRENTE: Recorrente agora PODE ter cartão (Opcional)
+        // Se for recorrente, mostramos o grupo de cartão
+        const showCardGroup = isCard || isRecurrent; 
+
+        document.getElementById('card-select-group').classList.toggle('hidden', !showCardGroup);
         document.getElementById('install-group').classList.toggle('hidden', !isInstallment);
         document.getElementById('variable-group').classList.toggle('hidden', !isRecurrent);
         
         const dateLabel = document.getElementById('dateLabel');
         if (isRecurrent) {
-            dateLabel.innerText = "Dia de Vencimento Mensal";
+            dateLabel.innerText = "Dia de Cobrança (ou Vencimento)";
         } else if (val === 'boleto_parcelado') {
             dateLabel.innerText = "Data do 1º Vencimento";
         } else {
@@ -815,9 +871,10 @@ const App = {
     addExpense(e) {
         e.preventDefault(); const f = e.target;
         const type = f.type.value;
-        const cardId = (type.includes('cartao') || type === 'parcelado') ? f.cardId.value : null;
+        // Permite cartão vazio se for recorrente (débito em conta), mas exige se for Parcelado/Cartão
+        const cardId = f.cardId.value;
         
-        if((type.includes('cartao') || type === 'parcelado') && !cardId) return alert("Selecione um cartão!");
+        if((type.includes('cartao') || type === 'parcelado') && !cardId) return alert("Selecione um cartão para este tipo de compra!");
 
         Store.data.expenses.push({ 
             id: Utils.uuid(), 
@@ -828,10 +885,10 @@ const App = {
             beneficiary: f.beneficiary.value, 
             date: f.date.value, 
             installments: f.inst ? f.inst.value : 1, 
-            cardId, 
+            cardId: cardId || null, // Salva o cartão se houver
             paidPeriods: [],
-            pausedPeriods: [], // Novo
-            terminationDate: null, // Novo
+            pausedPeriods: [],
+            terminationDate: null,
             isVariable: f.isVariable ? f.isVariable.checked : false, 
             variations: {} 
         });
@@ -847,9 +904,10 @@ const App = {
             const c = Store.data.cards.find(x => x.id === id);
             if(c) { 
                 c.name = f.name.value; c.limit = f.limit.value; c.closingDay = f.closing.value; c.dueDay = f.due.value; c.skin = f.skin.value; 
+                c.lastDigits = f.last.value; // Salva ultimos digitos na edição
             }
         } else {
-            Store.data.cards.push({ id: Utils.uuid(), name: f.name.value, limit: f.limit.value, closingDay: f.closing.value, dueDay: f.due.value, skin: f.skin.value, status: 'active', lastDigits: '00' });
+            Store.data.cards.push({ id: Utils.uuid(), name: f.name.value, limit: f.limit.value, closingDay: f.closing.value, dueDay: f.due.value, skin: f.skin.value, status: 'active', lastDigits: f.last.value || '0000' });
         }
         Store.save(); f.reset(); f.classList.add('hidden'); this.render();
     },
@@ -859,6 +917,7 @@ const App = {
         const f = document.getElementById('newCardForm'); 
         f.classList.remove('hidden');
         f.cardId.value = c.id; f.name.value = c.name; f.limit.value = c.limit; f.closing.value = c.closingDay; f.due.value = c.dueDay; f.skin.value = c.skin;
+        f.last.value = c.lastDigits; // Carrega ultimos digitos
         f.scrollIntoView({behavior: 'smooth'});
     },
 
@@ -867,7 +926,6 @@ const App = {
         if(c) { c.status = c.status === 'active' ? 'sleeping' : 'active'; Store.save(); }
     },
     
-    // --- LÓGICA DE ACELERAÇÃO DE FATURA (CANCELAMENTO DE CARTÃO) ---
     cancelCard(id) {
         const card = Store.data.cards.find(x => x.id === id);
         if(!card) return;
@@ -876,7 +934,6 @@ const App = {
         
         const accelerate = confirm("Deseja ANTECIPAR todas as faturas futuras para hoje?\n\nOK = Sim, vencer tudo hoje.\nCancelar = Não, manter parcelas normais.");
 
-        // Marca cartão como cancelado
         card.status = 'cancelled';
         
         if (accelerate) {
@@ -884,43 +941,36 @@ const App = {
             let countExpenses = 0;
             const today = Utils.getTodayStr();
 
-            // Itera sobre despesas para acelerar
             Store.data.expenses.forEach(exp => {
                 if (exp.cardId === id && exp.type === 'parcelado') {
                     const totalInst = parseInt(exp.installments);
                     const paidCount = exp.paidPeriods ? exp.paidPeriods.length : 0;
                     
-                    // Se ainda tem parcelas a pagar
                     if (paidCount < totalInst) {
                         const parcelValue = parseFloat(exp.value) / totalInst;
                         const remainingInst = totalInst - paidCount;
                         const remainingDebt = parcelValue * remainingInst;
 
-                        // Adiciona ao montante total
                         totalAntecipado += remainingDebt;
                         countExpenses++;
                         
-                        // Marca a despesa original como "finalizada" ou paga para não aparecer mais
-                        // Truque: definimos que as parcelas pagas são iguais ao total
-                        // Mas isso sujaria o histórico. Melhor: Alteramos o tipo para algo que não gere cobrança futura
                         exp.description += " (Antecipado)";
-                        exp.installments = paidCount; // Encerra a dívida original onde parou
+                        exp.installments = paidCount; 
                     }
                 }
             });
 
             if (totalAntecipado > 0) {
-                // Cria uma nova despesa única com o valor total
                 Store.data.expenses.push({
                     id: Utils.uuid(),
                     description: `Antecipação Fatura: ${card.name}`,
                     value: totalAntecipado.toFixed(2),
-                    type: 'avista', // Vira uma despesa à vista
-                    category: 'Tributos', // Ou Financeiro
+                    type: 'avista', 
+                    category: 'Tributos', 
                     beneficiary: 'Banco',
                     date: today,
                     installments: 1,
-                    cardId: null, // Desvincula do cartão para não bugar limite
+                    cardId: null, 
                     paidPeriods: [],
                     isVariable: false
                 });
@@ -934,12 +984,10 @@ const App = {
         Store.save();
     },
 
-    // --- LÓGICA DE GESTÃO DE ASSINATURA (PAUSA / CANCELAMENTO) ---
     manageSubscription(id, ym) {
         const exp = Store.data.expenses.find(e => e.id === id);
         if (!exp) return;
 
-        // Cria modal dinâmico
         const modalHTML = `
         <div class="modal-overlay" onclick="this.remove()">
             <div class="modal-content" onclick="event.stopPropagation()">
@@ -981,13 +1029,10 @@ const App = {
 
     cancelSubscription(id, ym, btnEl) {
         const exp = Store.data.expenses.find(e => e.id === id);
-        
-        // Calcula o mês anterior para ser a data de término
-        // Se eu cancelo "a partir de Fevereiro (2026-02)", o terminationDate é Janeiro (2026-01)
         const [y, m] = ym.split('-').map(Number);
-        const date = new Date(y, m - 1, 1); // dia 1 do mês atual
-        date.setMonth(date.getMonth() - 1); // volta 1 mês
-        const prevYM = date.toISOString().slice(0, 7); // YYYY-MM
+        const date = new Date(y, m - 1, 1); 
+        date.setMonth(date.getMonth() - 1); 
+        const prevYM = date.toISOString().slice(0, 7); 
 
         if (confirm(`Deseja cancelar definitivamente a partir de ${ym}?`)) {
             exp.terminationDate = prevYM;
@@ -1091,7 +1136,7 @@ const App = {
         const blob = new Blob([JSON.stringify(Store.data)], {type: "application/json"}); 
         const a = document.createElement('a'); 
         a.href = URL.createObjectURL(blob); 
-        a.download = "functus_platinum_backup.json"; 
+        a.download = "functus_diamond_backup.json"; 
         a.click(); 
         localStorage.setItem('functus_last_backup', Date.now()); 
         this.checkBackupStatus(); 
