@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Functus! - Organizador Financeiro</title>
+    <title>Functus v2.1 - Planner Financeiro (Stable)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #2c3e50;
+            --secondary: #34495e;
             --accent: #3498db;
-            --danger: #e74c3c;
-            --success: #27ae60;
-            --bg: #f4f6f7;
+            --danger: #e74c3c;     /* Vermelho - Urgente */
+            --warning: #f1c40f;    /* Amarelo - Atenção */
+            --safe: #2ecc71;       /* Verde - Tranquilo */
+            --bg: #f0f2f5;
             --card-bg: #ffffff;
             --text: #2c3e50;
         }
@@ -18,67 +21,96 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
         
         /* Layout */
-        header { background: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h1 { margin: 0; font-size: 1.5rem; letter-spacing: 1px; }
+        header { background: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 10; }
+        h1 { margin: 0; font-size: 1.4rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
         
-        main { flex: 1; padding: 2rem; overflow-y: auto; display: flex; gap: 20px; flex-wrap: wrap; }
+        main { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
         
         /* Components */
-        .card { background: var(--card-bg); border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex: 1 1 300px; min-width: 300px; }
-        .card.full-width { flex: 1 1 100%; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .row { display: flex; flex-wrap: wrap; gap: 20px; }
+        .col { flex: 1; min-width: 300px; }
         
-        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
-        .stat-box { background: #ecf0f1; padding: 1rem; border-radius: 6px; text-align: center; }
-        .stat-val { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
-        .stat-label { font-size: 0.85rem; text-transform: uppercase; color: #7f8c8d; }
+        /* Dashboard Stats */
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+        .stat-box { background: white; padding: 1.2rem; border-radius: 10px; border-left: 5px solid var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 1.8rem; font-weight: bold; color: var(--primary); margin: 5px 0; }
+        .stat-label { font-size: 0.8rem; text-transform: uppercase; color: #7f8c8d; letter-spacing: 1px; }
+
+        /* Navigation Tabs */
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: white; padding: 10px; border-radius: 50px; width: fit-content; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .nav-tab { cursor: pointer; padding: 8px 20px; border-radius: 20px; font-weight: 500; font-size: 0.9rem; transition: 0.3s; }
+        .nav-tab:hover { background: #ecf0f1; }
+        .nav-tab.active { background: var(--accent); color: white; box-shadow: 0 2px 5px rgba(52, 152, 219, 0.4); }
+
+        /* Month Selector (Planner) */
+        .month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: white; padding: 10px 20px; border-radius: 12px; }
+        .month-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); padding: 0 15px; }
+        .current-month-display { font-size: 1.2rem; font-weight: bold; text-transform: capitalize; }
+
+        /* Planner Items */
+        .planner-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px; border-radius: 8px; margin-bottom: 10px; 
+            border-left: 6px solid #ccc; background: white;
+            transition: all 0.2s;
+        }
+        .planner-item:hover { transform: translateX(5px); }
+        
+        /* Traffic Light Logic */
+        .status-safe { border-left-color: var(--safe); }
+        .status-warning { border-left-color: var(--warning); background-color: #fffcf0; }
+        .status-danger { border-left-color: var(--danger); background-color: #fff5f5; }
+        .status-paid { border-left-color: #bdc3c7; background-color: #f9f9f9; opacity: 0.7; text-decoration: line-through; }
+        .status-paid .info { opacity: 0.5; }
+
+        .item-info h4 { margin: 0; font-size: 1rem; }
+        .item-info small { color: #7f8c8d; font-size: 0.8rem; }
+        .item-meta { text-align: right; }
+        .item-price { font-weight: bold; font-size: 1.1rem; }
+        
+        /* Buttons */
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 0.9rem; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-success { background: var(--safe); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        .btn:hover { filter: brightness(0.9); transform: translateY(-1px); }
+
+        .btn-pay { min-width: 80px; }
+
+        /* Modal "Até Quando" */
+        .debt-list { max-height: 400px; overflow-y: auto; }
+        .debt-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        .debt-date { font-weight: bold; color: var(--accent); }
 
         /* Forms */
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
-        input, select, button { width: 100%; padding: 0.8rem; border: 1px solid #bdc3c7; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
-        button { background: var(--accent); color: white; border: none; cursor: pointer; transition: 0.2s; font-weight: 600; }
-        button:hover { background: #2980b9; }
-        button.secondary { background: #95a5a6; }
-        button.danger { background: var(--danger); }
-
-        /* Tables & Lists */
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
-        th, td { text-align: left; padding: 0.8rem; border-bottom: 1px solid #ecf0f1; }
-        th { background-color: #f8f9fa; color: var(--primary); }
+        input, select { width: 100%; padding: 10px; margin: 5px 0 15px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         
-        /* Utilities */
-        .tabs { display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #ecf0f1; padding-bottom: 0.5rem; }
-        .tab { cursor: pointer; padding: 0.5rem 1rem; border-radius: 4px; opacity: 0.6; }
-        .tab.active { background: var(--accent); color: white; opacity: 1; }
-        .hidden { display: none; }
-        .tag { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; color: white; }
-        .tag-card { background-color: var(--primary); }
-        .tag-person { background-color: var(--success); }
-
-        /* Prolixo mas visual leve */
-        .details { font-size: 0.8rem; color: #7f8c8d; margin-top: 0.2rem; }
+        .hidden { display: none !important; }
+        
+        /* Tags */
+        .tag { padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; color: white; font-weight: normal; margin-left: 5px;}
     </style>
 </head>
 <body>
 
 <header>
-    <div>
-        <h1>Functus! <span style="font-size:0.8rem; opacity:0.8">v1.0</span></h1>
-        <small>Vencendo a Entropia Financeira</small>
-    </div>
+    <h1>Functus <span style="font-size:0.8rem; background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:4px;">v2.1</span></h1>
     <div style="display: flex; gap: 10px;">
-        <button onclick="app.exportData()" style="width: auto; padding: 0.5rem 1rem;">💾 Exportar JSON</button>
-        <button onclick="document.getElementById('fileInput').click()" style="width: auto; padding: 0.5rem 1rem; background: var(--success)">📂 Importar</button>
+        <button class="btn btn-outline" style="color:white; border-color:white" onclick="app.showDebtProjection()">⏳ Até quando eu pago?</button>
+        <button class="btn btn-success" onclick="app.exportData()">💾 Backup</button>
+        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">📂 Restaurar</button>
         <input type="file" id="fileInput" class="hidden" onchange="app.importData(this)">
     </div>
 </header>
 
-<div style="padding: 1rem 2rem;">
-    <div class="tabs">
-        <div class="tab active" onclick="app.switchTab('dashboard')">📊 Dashboard</div>
-        <div class="tab" onclick="app.switchTab('entries')">📝 Lançamentos</div>
-        <div class="tab" onclick="app.switchTab('calendar')">📅 Calendário</div>
-        <div class="tab" onclick="app.switchTab('cards')">💳 Cartões & Config</div>
+<div style="padding: 1rem 2rem 0;">
+    <div class="nav-tabs">
+        <div class="nav-tab active" onclick="app.switchTab('dashboard')">📊 Dashboard & Gráficos</div>
+        <div class="nav-tab" onclick="app.switchTab('planner')">📅 Planner Inteligente</div>
+        <div class="nav-tab" onclick="app.switchTab('entries')">📝 Lançamentos</div>
+        <div class="nav-tab" onclick="app.switchTab('cards')">💳 Cartões</div>
     </div>
 </div>
 
@@ -87,26 +119,29 @@
 
 <script>
 /**
- * LÓGICA DE NEGÓCIOS - FUNCTUS
- * * Estrutura de Dados (Estado):
- * - cards: [] (id, name, closingDate, dueDate, active)
- * - expenses: [] (id, description, value, type, category, beneficiary, cardId, installments, paidInstallments, date)
- * - income: [] (id, description, value, date)
+ * CORE LOGIC - FUNCTUS v2.1
  */
 
 const Utils = {
     uuid: () => Date.now().toString(36) + Math.random().toString(36).substr(2),
     formatCurrency: (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val),
-    formatDate: (dateStr) => {
-        if(!dateStr) return '-';
-        const [y, m, d] = dateStr.split('-');
-        return `${d}/${m}/${y}`;
+    toDate: (str) => new Date(str + 'T12:00:00'),
+    formatMonthYear: (ymStr) => {
+        const [y, m] = ymStr.split('-');
+        const date = new Date(y, m - 1, 1);
+        return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
     },
     addMonths: (date, months) => {
         const d = new Date(date);
         d.setMonth(d.getMonth() + months);
         return d;
-    }
+    },
+    diffDays: (d1, d2) => {
+        const t1 = new Date(d1).setHours(0,0,0,0);
+        const t2 = new Date(d2).setHours(0,0,0,0);
+        return (t1 - t2) / (1000 * 60 * 60 * 24);
+    },
+    getTodayStr: () => new Date().toISOString().split('T')[0]
 };
 
 const Store = {
@@ -124,39 +159,140 @@ const Store = {
     },
     
     init() {
-        const saved = localStorage.getItem('functus_db');
+        const saved = localStorage.getItem('functus_db_v2');
         if (saved) {
             this.data = JSON.parse(saved);
         } else {
-            // Dados Iniciais de Exemplo (para não começar vazio)
             this.seed();
         }
     },
 
     save() {
-        localStorage.setItem('functus_db', JSON.stringify(this.data));
-        app.render(); // Re-renderiza ao salvar
+        localStorage.setItem('functus_db_v2', JSON.stringify(this.data));
+        // Verificação de segurança: só chama render se o app já existir
+        if (window.app && typeof window.app.render === 'function') {
+            window.app.render();
+        }
     },
 
     seed() {
-        // Exemplo inicial baseado no prompt
         this.data.cards.push({ id: 'c1', name: 'Mastercard Black', closingDay: 5, dueDay: 10, active: true });
-        this.data.expenses.push({
-            id: Utils.uuid(), description: 'Netflix', value: 55.90, type: 'recorrente', 
-            category: 'Entretenimento (Streaming)', beneficiary: 'Geral', cardId: 'c1', 
-            installments: 1, paidInstallments: 0, date: '2026-01-15'
-        });
-        this.data.expenses.push({
-            id: Utils.uuid(), description: 'Cálculo Jurídico', value: 120.00, type: 'recorrente', 
-            category: 'Escritório', beneficiary: 'Hugo', cardId: 'c1', 
-            installments: 1, paidInstallments: 0, date: '2026-01-20'
-        });
         this.save();
+    }
+};
+
+const Ledger = {
+    getMonthlyLedger(year, month) {
+        const targetYM = `${year}-${String(month).padStart(2, '0')}`;
+        const items = [];
+        let totalDue = 0;
+        let totalPaid = 0;
+
+        Store.data.expenses.forEach(exp => {
+            const expDate = Utils.toDate(exp.date);
+            let startMonthOffset = 0;
+            let dueDate = new Date(year, month - 1, expDate.getDate());
+            
+            if (exp.cardId) {
+                const card = Store.data.cards.find(c => c.id === exp.cardId);
+                if (card) {
+                    if (expDate.getDate() >= card.closingDay) startMonthOffset = 1;
+                    dueDate = new Date(year, month - 1, card.dueDay);
+                }
+            } else {
+                dueDate = new Date(year, month - 1, expDate.getDate());
+            }
+
+            let isApplicable = false;
+            let currentParcel = 0;
+            let note = '';
+            const totalInstallments = parseInt(exp.installments) || 1;
+
+            if (exp.type === 'recorrente') {
+                const expStartYM = exp.date.substring(0, 7);
+                if (targetYM >= expStartYM) {
+                    isApplicable = true;
+                    note = 'Recorrente';
+                    currentParcel = 1;
+                }
+            } else {
+                const firstParcelDate = Utils.addMonths(expDate, startMonthOffset);
+                const diffMonths = (year - firstParcelDate.getFullYear()) * 12 + (month - 1 - firstParcelDate.getMonth());
+                
+                if (diffMonths >= 0 && diffMonths < totalInstallments) {
+                    isApplicable = true;
+                    currentParcel = diffMonths + 1;
+                    note = exp.type === 'parcelado' ? `${currentParcel}/${totalInstallments}` : 'À vista';
+                }
+            }
+
+            if (isApplicable) {
+                const parcelValue = parseFloat(exp.value) / (exp.type === 'parcelado' ? totalInstallments : 1);
+                
+                if (!exp.paidPeriods) exp.paidPeriods = [];
+                const isPaid = exp.paidPeriods.includes(targetYM);
+
+                if(isPaid) totalPaid += parcelValue;
+                else totalDue += parcelValue;
+
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const daysToDue = Utils.diffDays(dueDate, today);
+                
+                let statusColor = 'status-safe';
+                if (isPaid) {
+                    statusColor = 'status-paid';
+                } else {
+                    if (daysToDue <= 1) statusColor = 'status-danger';
+                    else if (daysToDue <= 5) statusColor = 'status-warning';
+                }
+
+                items.push({
+                    expenseId: exp.id,
+                    description: exp.description,
+                    beneficiary: exp.beneficiary,
+                    category: exp.category,
+                    cardName: exp.cardId ? (Store.data.cards.find(c => c.id === exp.cardId)?.name || 'Cartão Excluído') : 'Dinheiro/Pix',
+                    value: parcelValue,
+                    note: note,
+                    dueDate: dueDate,
+                    isPaid: isPaid,
+                    statusClass: statusColor,
+                    targetYM: targetYM,
+                    isQuitado: (exp.type !== 'recorrente' && currentParcel === totalInstallments && isPaid)
+                });
+            }
+        });
+
+        items.sort((a, b) => a.dueDate - b.dueDate);
+        return { items, totalDue, totalPaid, total: totalDue + totalPaid };
+    },
+
+    togglePayment(expenseId, periodYM) {
+        const exp = Store.data.expenses.find(e => e.id === expenseId);
+        if (!exp) return;
+        if (!exp.paidPeriods) exp.paidPeriods = [];
+
+        if (exp.paidPeriods.includes(periodYM)) {
+            exp.paidPeriods = exp.paidPeriods.filter(p => p !== periodYM);
+        } else {
+            exp.paidPeriods.push(periodYM);
+        }
+        Store.save();
+    },
+
+    getDebtEndDate(exp) {
+        if (exp.type === 'recorrente') return 'Indeterminado';
+        if (exp.type === 'avista' || exp.type === 'cartao_avista') return Utils.formatDate(exp.date);
+        const total = parseInt(exp.installments);
+        const endDate = Utils.addMonths(Utils.toDate(exp.date), total);
+        return endDate;
     }
 };
 
 const App = {
     currentTab: 'dashboard',
+    plannerDate: new Date(),
 
     init() {
         Store.init();
@@ -165,417 +301,318 @@ const App = {
 
     switchTab(tab) {
         this.currentTab = tab;
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll(`.tab[onclick="app.switchTab('${tab}')"]`).forEach(t => t.classList.add('active'));
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll(`.nav-tab[onclick="app.switchTab('${tab}')"]`).forEach(t => t.classList.add('active'));
         this.render();
     },
 
-    exportData() {
-        const dataStr = JSON.stringify(Store.data, null, 2);
-        const blob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `functus_backup_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
+    changePlannerMonth(offset) {
+        this.plannerDate = Utils.addMonths(this.plannerDate, offset);
+        this.render();
     },
 
-    importData(input) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                Store.data = JSON.parse(e.target.result);
-                Store.save();
-                alert("Dados importados com sucesso! A entropia diminuiu.");
-            } catch (err) {
-                alert("Erro ao ler arquivo JSON.");
-            }
-        };
-        reader.readAsText(file);
+    payBill(id, ym) {
+        Ledger.togglePayment(id, ym);
     },
 
-    // --- RENDERIZADORES ---
+    showDebtProjection() {
+        const debts = Store.data.expenses.filter(e => e.type === 'parcelado');
+        const list = debts.map(d => {
+            const end = Ledger.getDebtEndDate(d);
+            const endStr = end === 'Indeterminado' ? end : end.toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
+            const total = parseInt(d.installments);
+            const paid = d.paidPeriods ? d.paidPeriods.length : 0;
+            const status = paid >= total ? '<span style="color:green; font-weight:bold">QUITADO</span>' : '';
+
+            return `
+                <div class="debt-item">
+                    <div>
+                        <strong>${d.description}</strong> (${paid}/${total})<br>
+                        <small>${d.category}</small>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="debt-date">Termina em: ${endStr}</div>
+                        ${status}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const modalHtml = `
+            <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:1000" onclick="this.remove()">
+                <div class="card" style="width:500px; max-width:90%;" onclick="event.stopPropagation()">
+                    <h2>Até quando eu pago?</h2>
+                    <div class="debt-list">${list || '<p>Nenhuma dívida parcelada ativa.</p>'}</div>
+                    <button class="btn btn-primary" style="margin-top:20px; width:100%" onclick="this.parentElement.parentElement.remove()">Fechar</button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    },
 
     render() {
         const main = document.getElementById('main-content');
         main.innerHTML = '';
-
         if (this.currentTab === 'dashboard') this.renderDashboard(main);
+        if (this.currentTab === 'planner') this.renderPlanner(main);
         if (this.currentTab === 'entries') this.renderEntries(main);
-        if (this.currentTab === 'calendar') this.renderCalendar(main);
         if (this.currentTab === 'cards') this.renderCards(main);
     },
 
     renderDashboard(container) {
-        // Cálculos Rápidos
-        const totalIncome = Store.data.income.reduce((acc, curr) => acc + parseFloat(curr.value), 0);
-        
-        // Calcular despesas do mês corrente (aproximado para o dashboard)
-        const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-        const totalExpense = Store.data.expenses.reduce((acc, exp) => {
-            // Lógica simplificada de soma total (refinada no calendário)
-            return acc + parseFloat(exp.value); 
-        }, 0);
+        const today = new Date();
+        const ledger = Ledger.getMonthlyLedger(today.getFullYear(), today.getMonth() + 1);
 
         container.innerHTML = `
-            <div class="card full-width">
-                <h2>Visão Geral</h2>
-                <div class="stat-grid">
-                    <div class="stat-box">
-                        <div class="stat-val" style="color:var(--success)">${Utils.formatCurrency(totalIncome)}</div>
-                        <div class="stat-label">Receita Declarada</div>
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <h2>Visão do Mês (${Utils.formatMonthYear(today.toISOString().slice(0,7))})</h2>
+                        <div class="stat-grid">
+                            <div class="stat-box">
+                                <div class="stat-val" style="color:var(--danger)">${Utils.formatCurrency(ledger.totalDue)}</div>
+                                <div class="stat-label">A Pagar</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-val" style="color:var(--safe)">${Utils.formatCurrency(ledger.totalPaid)}</div>
+                                <div class="stat-label">Já Pago</div>
+                            </div>
+                        </div>
+                        <p style="text-align:center; color:#7f8c8d">Use o <b>Planner Inteligente</b> para ver detalhes e dar baixa.</p>
                     </div>
-                    <div class="stat-box">
-                        <div class="stat-val" style="color:var(--danger)">${Utils.formatCurrency(totalExpense)}</div>
-                        <div class="stat-label">Total Cadastrado (Soma bruta)</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-val">${Utils.formatCurrency(totalIncome - totalExpense)}</div>
-                        <div class="stat-label">Saldo Teórico</div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                         <h3>Média de Gastos por Item</h3>
+                         <canvas id="chartItems"></canvas>
                     </div>
                 </div>
             </div>
-
-            <div class="card">
-                <h3>Top Gastos por Categoria</h3>
-                ${this.getTopCategoriesHTML()}
-            </div>
-             <div class="card">
-                <h3>Gastos por Beneficiário</h3>
-                ${this.getTopBeneficiariesHTML()}
+            <div class="row" style="margin-top:20px">
+                <div class="col">
+                    <div class="card">
+                        <h3>Distribuição por Categoria</h3>
+                        <canvas id="chartCategories" style="max-height:300px"></canvas>
+                    </div>
+                </div>
             </div>
         `;
+        this.renderCharts();
     },
 
-    getTopCategoriesHTML() {
+    renderCharts() {
+        const expenses = Store.data.expenses;
         const catMap = {};
-        Store.data.expenses.forEach(e => {
-            catMap[e.category] = (catMap[e.category] || 0) + parseFloat(e.value);
+        expenses.forEach(e => { catMap[e.category] = (catMap[e.category] || 0) + parseFloat(e.value); });
+        const benMap = {};
+        expenses.forEach(e => { benMap[e.beneficiary] = (benMap[e.beneficiary] || 0) + parseFloat(e.value); });
+
+        new Chart(document.getElementById('chartCategories'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(catMap),
+                datasets: [{
+                    data: Object.values(catMap),
+                    backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#34495e', '#e67e22']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
         });
-        const sorted = Object.entries(catMap).sort((a,b) => b[1] - a[1]);
-        
-        return `<table>${sorted.map(([cat, val]) => `
-            <tr><td>${cat}</td><td style="text-align:right"><b>${Utils.formatCurrency(val)}</b></td></tr>
-        `).join('')}</table>`;
+
+        new Chart(document.getElementById('chartItems'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(benMap),
+                datasets: [{
+                    label: 'Total Acumulado',
+                    data: Object.values(benMap),
+                    backgroundColor: '#3498db'
+                }]
+            },
+            options: { responsive: true }
+        });
     },
 
-    getTopBeneficiariesHTML() {
-        const benMap = {};
-        Store.data.expenses.forEach(e => {
-            benMap[e.beneficiary] = (benMap[e.beneficiary] || 0) + parseFloat(e.value);
-        });
-        return `<table>${Object.entries(benMap).map(([ben, val]) => `
-             <tr><td>${ben}</td><td style="text-align:right">${Utils.formatCurrency(val)}</td></tr>
-        `).join('')}</table>`;
+    renderPlanner(container) {
+        const y = this.plannerDate.getFullYear();
+        const m = this.plannerDate.getMonth() + 1;
+        const ledger = Ledger.getMonthlyLedger(y, m);
+        const currentYM = `${y}-${String(m).padStart(2,'0')}`;
+
+        const itemsHtml = ledger.items.map(item => `
+            <div class="planner-item ${item.statusClass}">
+                <div class="item-info">
+                    <h4>
+                        ${item.description} 
+                        <span class="tag" style="background:${item.isPaid ? '#95a5a6' : '#3498db'}">${item.note}</span>
+                        ${item.isQuitado ? '<span class="tag" style="background:#27ae60">QUITADO TOTAL</span>' : ''}
+                    </h4>
+                    <small>Vence: ${item.dueDate.getDate()}/${item.dueDate.getMonth()+1} • ${item.cardName} • ${item.category} (${item.beneficiary})</small>
+                </div>
+                <div class="item-meta">
+                    <div class="item-price">${Utils.formatCurrency(item.value)}</div>
+                    <button class="btn ${item.isPaid ? 'btn-outline' : 'btn-success'} btn-pay" 
+                            onclick="app.payBill('${item.expenseId}', '${item.targetYM}')">
+                        ${item.isPaid ? 'Desfazer' : 'PAGO'}
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        container.innerHTML = `
+            <div class="card full-width">
+                <div class="month-selector">
+                    <button class="month-btn" onclick="app.changePlannerMonth(-1)">&#8249;</button>
+                    <div class="current-month-display">
+                        ${Utils.formatMonthYear(currentYM)}
+                        <div style="font-size:0.9rem; font-weight:normal; color:#7f8c8d; text-align:center">
+                            Total: ${Utils.formatCurrency(ledger.total)}
+                        </div>
+                    </div>
+                    <button class="month-btn" onclick="app.changePlannerMonth(1)">&#8250;</button>
+                </div>
+
+                <div class="planner-list">
+                    ${itemsHtml.length ? itemsHtml : '<p style="text-align:center; padding:20px; color:#999">Nenhuma conta para este mês. Você venceu a entropia!</p>'}
+                </div>
+            </div>
+        `;
     },
 
     renderEntries(container) {
-        // Formulário de Despesa
         const activeCards = Store.data.cards.filter(c => c.active);
-        
-        const cardOptions = activeCards.map(c => `<option value="${c.id}">${c.name} (Vence dia ${c.dueDay})</option>`).join('');
+        const cardOptions = activeCards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
         const catOptions = Store.data.categories.map(c => `<option value="${c}">${c}</option>`).join('');
         const benOptions = Store.data.beneficiaries.map(b => `<option value="${b}">${b}</option>`).join('');
-
+        
         container.innerHTML = `
             <div class="card">
-                <h3>Nova Despesa</h3>
+                <h3>Novo Lançamento</h3>
                 <form onsubmit="app.handleAddExpense(event)">
-                    <div class="form-group">
-                        <label>Descrição</label>
-                        <input type="text" name="desc" required placeholder="Ex: Ração da Lilica">
+                    <div class="row">
+                        <div class="col"><label>Descrição</label><input type="text" name="desc" required></div>
+                        <div class="col"><label>Valor Total</label><input type="number" step="0.01" name="value" required></div>
                     </div>
-                    <div class="form-group">
-                        <label>Valor Total (R$)</label>
-                        <input type="number" step="0.01" name="value" required>
+                    <div class="row">
+                        <div class="col"><label>Categoria</label><select name="category">${catOptions}</select></div>
+                        <div class="col"><label>Beneficiário</label><select name="beneficiary">${benOptions}</select></div>
                     </div>
-                    <div style="display:flex; gap:10px">
-                        <div class="form-group" style="flex:1">
-                            <label>Categoria</label>
-                            <select name="category">${catOptions}</select>
+                    <div class="row">
+                        <div class="col">
+                            <label>Tipo</label>
+                            <select name="type" onchange="app.toggleInstallments(this.value)">
+                                <option value="avista">À vista / Pix</option>
+                                <option value="cartao_avista">Cartão (1x)</option>
+                                <option value="parcelado">Parcelado</option>
+                                <option value="recorrente">Recorrente</option>
+                            </select>
                         </div>
-                        <div class="form-group" style="flex:1">
-                            <label>Beneficiário</label>
-                            <select name="beneficiary">${benOptions}</select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Tipo de Pagamento</label>
-                        <select name="type" onchange="app.toggleInstallments(this.value)">
-                            <option value="avista">À vista / Débito / Pix</option>
-                            <option value="cartao_avista">Cartão de Crédito (1x)</option>
-                            <option value="parcelado">Parcelado</option>
-                            <option value="recorrente">Recorrente (Assinatura)</option>
-                        </select>
-                    </div>
-                    
-                    <div id="card-selection" class="hidden form-group">
-                        <label>Cartão</label>
-                        <select name="cardId">${cardOptions}</select>
-                    </div>
-
-                    <div id="installment-area" class="hidden" style="display:flex; gap:10px">
-                        <div class="form-group" style="flex:1">
-                            <label>Total de Parcelas</label>
-                            <input type="number" name="installments" value="1" min="1">
-                        </div>
-                        <div class="form-group" style="flex:1">
-                            <label>Já Pagas</label>
-                            <input type="number" name="paid" value="0" min="0">
+                        <div class="col hidden" id="card-selection">
+                            <label>Cartão</label><select name="cardId">${cardOptions}</select>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label>Data da Compra</label>
-                        <input type="date" name="date" required value="${new Date().toISOString().split('T')[0]}">
+                    <div class="row hidden" id="installment-area">
+                        <div class="col"><label>Parcelas</label><input type="number" name="installments" value="1"></div>
                     </div>
-
-                    <button type="submit">Adicionar Despesa</button>
+                    <label>Data Compra</label><input type="date" name="date" required value="${Utils.getTodayStr()}">
+                    <button type="submit" class="btn btn-primary" style="width:100%">Lançar na Contabilidade</button>
                 </form>
             </div>
-
-            <div class="card full-width">
-                <h3>Últimos Lançamentos</h3>
-                <table>
-                    <thead>
-                        <tr><th>Data</th><th>Descrição</th><th>Quem</th><th>Valor</th><th>Detalhes</th><th>Ação</th></tr>
-                    </thead>
-                    <tbody>
-                        ${Store.data.expenses.slice().reverse().map(e => {
-                            const card = Store.data.cards.find(c => c.id === e.cardId);
-                            const cardName = card ? `<span class="tag tag-card">${card.name}</span>` : '';
-                            return `
-                            <tr>
-                                <td>${Utils.formatDate(e.date)}</td>
-                                <td>${e.description}<br><span class="details">${e.category}</span></td>
-                                <td><span class="tag tag-person">${e.beneficiary}</span></td>
-                                <td>${Utils.formatCurrency(e.value)}</td>
-                                <td>
-                                    ${e.type === 'parcelado' ? `Parcelado ${e.installments}x` : e.type} 
-                                    ${cardName}
-                                </td>
-                                <td><button class="danger" style="padding:5px 10px; width:auto" onclick="app.deleteExpense('${e.id}')">X</button></td>
-                            </tr>
-                        `}).join('')}
-                    </tbody>
-                </table>
-            </div>
         `;
-    },
-
-    renderCalendar(container) {
-        // Lógica "Prolixa" do Calendário
-        // Precisamos projetar as parcelas nos meses futuros
-        const projections = {}; // Chave: "YYYY-MM", Valor: { total: 0, items: [] }
-        
-        const now = new Date();
-        // Projetar para os próximos 12 meses
-        for(let i=0; i<12; i++) {
-            const d = Utils.addMonths(now, i);
-            const key = d.toISOString().slice(0, 7);
-            projections[key] = { total: 0, items: [] };
-        }
-
-        Store.data.expenses.forEach(exp => {
-            const expDate = new Date(exp.date);
-            let startMonthIndex = 0; // 0 = mês da compra
-
-            // Se for cartão, calcular quando cai a primeira parcela
-            if (exp.cardId) {
-                const card = Store.data.cards.find(c => c.id === exp.cardId);
-                // Mesmo se o cartão foi deletado (card is defined), a lógica aplica
-                if (card) {
-                    const buyDay = expDate.getDate();
-                    if (buyDay >= card.closingDay) {
-                        // Comprou depois do fechamento, joga pro próximo mês
-                        startMonthIndex = 1;
-                    }
-                }
-            }
-
-            const totalParcels = parseInt(exp.installments) || 1;
-            const alreadyPaid = parseInt(exp.paidInstallments) || 0;
-            const remaining = totalParcels - alreadyPaid;
-            
-            // Valor da parcela
-            const parcelValue = parseFloat(exp.value) / (exp.type === 'parcelado' ? totalParcels : 1);
-
-            if (exp.type === 'recorrente') {
-                // Projeta em todos os meses futuros
-                Object.keys(projections).forEach(key => {
-                    projections[key].total += parcelValue;
-                    projections[key].items.push({ desc: exp.description, val: parcelValue, note: 'Recorrente' });
-                });
-            } else {
-                // Projeta parcelas restantes
-                for (let i = 0; i < remaining; i++) {
-                    const currentParcelDate = Utils.addMonths(expDate, startMonthIndex + i);
-                    const key = currentParcelDate.toISOString().slice(0, 7);
-                    
-                    if (projections[key]) {
-                        projections[key].total += parcelValue;
-                        const parcelNum = alreadyPaid + i + 1;
-                        projections[key].items.push({ 
-                            desc: exp.description, 
-                            val: parcelValue, 
-                            note: exp.type === 'parcelado' ? `${parcelNum}/${totalParcels}` : 'À vista' 
-                        });
-                    }
-                }
-            }
-        });
-
-        // HTML do Calendário
-        let html = '<div class="card full-width"><h2>Projeção de Fluxo de Caixa</h2></div>';
-        
-        Object.entries(projections).forEach(([month, data]) => {
-            if(data.total === 0) return;
-            html += `
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:10px;">
-                        <h3 style="margin:0">${month}</h3>
-                        <span style="font-size:1.2rem; font-weight:bold; color:var(--danger)">${Utils.formatCurrency(data.total)}</span>
-                    </div>
-                    <ul style="list-style:none; padding:0; font-size:0.85rem;">
-                        ${data.items.map(item => `
-                            <li style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                <span>${item.desc} <small style="color:#999">(${item.note})</small></span>
-                                <span>${Utils.formatCurrency(item.val)}</span>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
     },
 
     renderCards(container) {
         container.innerHTML = `
-            <div class="card">
+             <div class="card">
                 <h3>Gerenciar Cartões</h3>
                 <form onsubmit="app.handleAddCard(event)">
-                    <div class="form-group">
-                        <label>Nome do Cartão</label>
-                        <input type="text" name="name" placeholder="Ex: Nubank, Visa XP" required>
+                    <div class="row">
+                        <div class="col"><input type="text" name="name" placeholder="Nome do Cartão" required></div>
+                        <div class="col"><input type="number" name="closing" placeholder="Dia Fechamento" required></div>
+                        <div class="col"><input type="number" name="due" placeholder="Dia Vencimento" required></div>
+                        <div class="col"><button type="submit" class="btn btn-primary">Adicionar</button></div>
                     </div>
-                    <div style="display:flex; gap:10px">
-                        <div class="form-group">
-                            <label>Dia Fechamento</label>
-                            <input type="number" name="closing" min="1" max="31" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Dia Vencimento</label>
-                            <input type="number" name="due" min="1" max="31" required>
-                        </div>
-                    </div>
-                    <button type="submit">Adicionar Cartão</button>
                 </form>
             </div>
-
-            <div class="card full-width">
-                <h3>Cartões Cadastrados</h3>
-                <table>
-                    <thead><tr><th>Nome</th><th>Fechamento</th><th>Vencimento</th><th>Status</th><th>Ação</th></tr></thead>
-                    <tbody>
-                        ${Store.data.cards.map(c => `
-                            <tr style="${!c.active ? 'opacity:0.5; background:#f9f9f9' : ''}">
-                                <td>${c.name}</td>
-                                <td>Dia ${c.closingDay}</td>
-                                <td>Dia ${c.dueDay}</td>
-                                <td>${c.active ? '<span style="color:green">Ativo</span>' : 'Excluído'}</td>
-                                <td>
-                                    ${c.active 
-                                        ? `<button class="danger" style="padding:5px; width:auto" onclick="app.toggleCardStatus('${c.id}', false)">Excluir</button>` 
-                                        : `<button class="secondary" style="padding:5px; width:auto" onclick="app.toggleCardStatus('${c.id}', true)">Restaurar</button>`
-                                    }
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                <p class="details">* Cartões "excluídos" não aparecem para novas compras, mas suas dívidas antigas continuam sendo calculadas no calendário.</p>
+            <div class="row">
+                ${Store.data.cards.map(c => `
+                    <div class="col" style="flex:0 0 300px">
+                        <div class="card" style="border-left:5px solid ${c.active ? 'var(--accent)' : '#ccc'}">
+                            <h4>${c.name}</h4>
+                            <p>Fecha dia ${c.closingDay} • Vence dia ${c.dueDay}</p>
+                            <button class="btn ${c.active ? 'btn-danger' : 'btn-success'}" onclick="app.toggleCardStatus('${c.id}', ${!c.active})">
+                                ${c.active ? 'Desativar' : 'Restaurar'}
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
             </div>
         `;
     },
 
-    // --- HANDLERS ---
-
     toggleInstallments(type) {
-        const cardSel = document.getElementById('card-selection');
-        const instArea = document.getElementById('installment-area');
-        
-        if (type.includes('cartao') || type === 'parcelado') {
-            cardSel.classList.remove('hidden');
-        } else {
-            cardSel.classList.add('hidden');
-        }
-
-        if (type === 'parcelado') {
-            instArea.classList.remove('hidden');
-        } else {
-            instArea.classList.add('hidden');
-        }
+        document.getElementById('card-selection').classList.toggle('hidden', !type.includes('cartao') && type !== 'parcelado');
+        document.getElementById('installment-area').classList.toggle('hidden', type !== 'parcelado');
     },
 
-    handleAddExpense(e) {
+ handleAddExpense(e) {
         e.preventDefault();
         const f = e.target;
-        const expense = {
+        
+        // CORREÇÃO: Pegamos o VALOR do campo tipo antes de usar
+        const tipoSelecionado = f.type.value; 
+
+        Store.data.expenses.push({
             id: Utils.uuid(),
             description: f.desc.value,
             value: f.value.value,
-            type: f.type.value,
+            type: tipoSelecionado, 
             category: f.category.value,
             beneficiary: f.beneficiary.value,
             date: f.date.value,
-            installments: f.installments.value,
-            paidInstallments: f.paid.value,
-            cardId: (f.type.includes('cartao') || f.type === 'parcelado') ? f.cardId.value : null
-        };
-        Store.data.expenses.push(expense);
+            installments: f.installments ? f.installments.value : 1,
+            paidPeriods: [], 
+            // AQUI ESTAVA O ERRO: Agora usamos a variável com o texto correto
+            cardId: (tipoSelecionado.includes('cartao') || tipoSelecionado === 'parcelado') ? f.cardId.value : null
+        });
         Store.save();
-        alert('Despesa adicionada!');
+        alert('Lançamento realizado!');
         f.reset();
-        this.render();
     },
+
+
 
     handleAddCard(e) {
         e.preventDefault();
         const f = e.target;
-        Store.data.cards.push({
-            id: Utils.uuid(),
-            name: f.name.value,
-            closingDay: parseInt(f.closing.value),
-            dueDay: parseInt(f.due.value),
-            active: true
-        });
+        Store.data.cards.push({ id: Utils.uuid(), name: f.name.value, closingDay: parseInt(f.closing.value), dueDay: parseInt(f.due.value), active: true });
         Store.save();
-        this.render();
     },
 
     toggleCardStatus(id, status) {
-        const card = Store.data.cards.find(c => c.id === id);
-        if(card) {
-            card.active = status;
-            Store.save();
-        }
+        const c = Store.data.cards.find(x => x.id === id);
+        if(c) { c.active = status; Store.save(); }
     },
 
-    deleteExpense(id) {
-        if(confirm('Tem certeza?')) {
-            Store.data.expenses = Store.data.expenses.filter(e => e.id !== id);
-            Store.save();
-        }
+    exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Store.data));
+        const a = document.createElement('a');
+        a.href = dataStr; a.download = "functus_v2_backup.json"; a.click();
+    },
+
+    importData(input) {
+        const reader = new FileReader();
+        reader.onload = (e) => { Store.data = JSON.parse(e.target.result); Store.save(); location.reload(); };
+        reader.readAsText(input.files[0]);
     }
 };
 
-// Start
-app = App; // Global scope for event handlers
+// --- CORREÇÃO DO ERRO DE REFERÊNCIA ---
+// Atribuímos o objeto App à variável global 'window.app' ANTES de iniciar.
+// Isso garante que os 'onclick' do HTML e o Store.save() encontrem o 'app'.
+window.app = App;
 App.init();
-</script>
 
+</script>
 </body>
 </html>
