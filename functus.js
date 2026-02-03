@@ -1,299 +1,6 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Functus v7.5 - Vavilov Refined</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    
-    <style>
-        /* * =========================================
-         * CSS VARIABLES & THEME CONFIGURATION
-         * =========================================
-         */
-        :root {
-            /* Light Theme Defaults */
-            --bg-body: #ece9e6; 
-            --bg-gradient: linear-gradient(to right, #ece9e6, #ffffff);
-            --glass-bg: rgba(255, 255, 255, 0.90);
-            --glass-border: rgba(255, 255, 255, 0.6);
-            --text-main: #1e293b;
-            --text-light: #64748b;
-            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            
-            /* Color Palette */
-            --primary: #2563eb;
-            --secondary: #64748b;
-            --accent: #f59e0b;
-            --danger: #ef4444;
-            --success: #10b981;
-            --info: #0ea5e9;
-            --purple: #8b5cf6; 
-            --dark: #0f172a;
-            --boleto: #475569;
-        }
-
-        [data-theme="dark"] {
-            --bg-body: #0f172a;
-            --bg-gradient: linear-gradient(to right, #0f172a, #1e293b);
-            --glass-bg: rgba(30, 41, 59, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f1f5f9;
-            --text-light: #94a3b8;
-            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-        }
-
-        /* * =========================================
-         * GLOBAL RESET & LAYOUT
-         * =========================================
-         */
-        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg-gradient); 
-            color: var(--text-main); 
-            margin: 0; padding: 0; 
-            display: flex; flex-direction: column; 
-            height: 100vh; 
-            transition: background 0.3s, color 0.3s;
-        }
-        
-        header { 
-            background: var(--glass-bg); backdrop-filter: blur(10px); padding: 1rem 2rem; 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 1px solid var(--glass-border); z-index: 100; flex-wrap: wrap; gap: 10px;
-        }
-        
-        h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
-        .badge-v3 { background: var(--accent); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; text-transform: uppercase; }
-
-        main { flex: 1; padding: 1rem; overflow-y: auto; max-width: 1200px; margin: 0 auto; width: 100%; }
-        
-        /* * =========================================
-         * COMPONENTS: PANELS & INPUTS
-         * =========================================
-         */
-        .glass-panel {
-            background: var(--glass-bg); box-shadow: var(--card-shadow);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            border-radius: 20px; border: 1px solid var(--glass-border);
-            padding: 1.5rem; margin-bottom: 1.5rem; transition: transform 0.2s ease, background 0.3s;
-        }
-        
-        .row { display: flex; flex-wrap: wrap; gap: 20px; }
-        .col { flex: 1; min-width: 300px; }
-
-        .nav-container { 
-            background: var(--glass-bg); padding: 5px; border-radius: 50px; display: inline-flex; 
-            box-shadow: var(--card-shadow); margin-bottom: 20px; max-width: 100%; overflow-x: auto; white-space: nowrap;
-        }
-        .nav-tab { 
-            padding: 10px 25px; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 0.9rem; 
-            color: var(--text-light); transition: all 0.3s; display: flex; align-items: center; gap: 8px;
-        }
-        .nav-tab:hover { color: var(--primary); background: rgba(255,255,255,0.1); }
-        .nav-tab.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
-
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-light); margin-bottom: 5px; }
-        input, select, textarea { 
-            width: 100%; padding: 12px; border: 2px solid var(--glass-border); border-radius: 10px; 
-            font-size: 0.95rem; transition: border-color 0.2s; background: rgba(255,255,255,0.5); color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-        }
-        [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: rgba(0,0,0,0.3); }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); background: var(--glass-bg); }
-
-        .checkbox-wrapper { display: flex; align-items: center; gap: 10px; padding: 10px; border: 2px solid var(--glass-border); border-radius: 10px; background: rgba(255,255,255,0.2); }
-        .checkbox-wrapper input { width: 20px; height: 20px; }
-
-        .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-info { background: var(--info); color: white; }
-        .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-        .btn-ghost { background: transparent; color: var(--text-main); border: 1px solid var(--text-light); }
-        .btn-danger-pulse { background: var(--danger); color: white; animation: pulse 2s infinite; }
-        .btn-dark { background: var(--dark); color: white; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-
-        .progress-track { height: 10px; background: rgba(0,0,0,0.1); border-radius: 5px; overflow: hidden; }
-        [data-theme="dark"] .progress-track { background: rgba(255,255,255,0.1); }
-        .progress-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
-
-        .planner-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px; background: var(--glass-bg); border-radius: 12px; margin-bottom: 10px; 
-            border-left: 5px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            transition: transform 0.2s;
-        }
-        .planner-item:hover { transform: translateX(5px); }
-        .status-safe { border-left-color: var(--success); }
-        .status-danger { border-left-color: var(--danger); }
-        .status-warning { border-left-color: var(--accent); }
-        .status-paid { border-left-color: var(--text-light); opacity: 0.6; filter: grayscale(0.8); }
-
-        /* * =========================================
-         * COMPONENTS: PREMIUM CARDS (VISUAL UPGRADE)
-         * =========================================
-         */
-        .credit-card-v3 {
-            height: 190px; width: 100%; border-radius: 16px; padding: 25px; color: white;
-            display: flex; flex-direction: column; justify-content: space-between;
-            position: relative; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
-            transition: transform 0.3s, box-shadow 0.3s;
-            font-family: 'Share Tech Mono', monospace; 
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .credit-card-v3:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        
-        .credit-card-v3::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 200%; height: 200%;
-            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.15) 0%, transparent 60%);
-            pointer-events: none;
-        }
-
-        .card-status-badge { 
-            position: absolute; top: 20px; right: 20px; 
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-            padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; 
-            text-transform: uppercase; font-family: 'Inter', sans-serif;
-        }
-
-        .card-chip {
-            width: 40px; height: 30px; background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
-            border-radius: 5px; margin-bottom: 10px; position: relative; overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.2);
-        }
-        .card-chip::after { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: rgba(0,0,0,0.2); }
-        .card-chip::before { content: ''; position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: rgba(0,0,0,0.2); }
-
-        .card-contactless { position: absolute; top: 60px; right: 20px; font-size: 1.5rem; opacity: 0.8; }
-        .card-number { font-size: 1.4rem; letter-spacing: 2px; text-shadow: 0 2px 2px rgba(0,0,0,0.5); }
-        .card-holder { text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; }
-        .card-meta-label { font-size: 0.6rem; opacity: 0.8; font-family: 'Inter', sans-serif; }
-
-        /* Skins */
-        .skin-black { background: linear-gradient(135deg, #2b2b2b 0%, #000000 100%); }
-        .skin-blue { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
-        .skin-purple { background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); }
-        .skin-gold { background: linear-gradient(135deg, #CAC531 0%, #F3F9A7 100%); color: #4a3b10; text-shadow: none; }
-        .skin-gold .card-number { text-shadow: 0 1px 1px rgba(255,255,255,0.4); }
-        .skin-platinum { background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%); }
-        .skin-boleto { background: linear-gradient(135deg, #475569 0%, #64748b 100%); } 
-        .skin-cancelled { background: linear-gradient(135deg, #4b5563, #374151); opacity: 0.8; filter: grayscale(1); }
-        .skin-cancelled .card-number { text-decoration: line-through; color: #ef4444; }
-
-        /* * =========================================
-         * COMPONENTS: PLANNER SCROLL (NEW)
-         * =========================================
-         */
-        .planner-header { margin-bottom: 25px; overflow-x: hidden; }
-        .cards-scroll-wrapper {
-            display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px 30px 5px; /* Padding bottom for shadows */
-            scroll-snap-type: x mandatory;
-        }
-        .planner-card-container {
-            flex: 0 0 300px; scroll-snap-align: center;
-        }
-        .planner-card-actions {
-            display: flex; gap: 10px; margin-top: 10px; justify-content: center;
-        }
-        /* Custom Scrollbar */
-        .cards-scroll-wrapper::-webkit-scrollbar { height: 6px; }
-        .cards-scroll-wrapper::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 3px; }
-        .cards-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 3px; }
-
-        /* * =========================================
-         * MODALS & UTILS
-         * =========================================
-         */
-        .modal-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center; z-index: 200;
-        }
-        .modal-content {
-            background: var(--bg-body); color: var(--text-main);
-            width: 800px; max-width: 95%; border-radius: 16px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4); padding: 2rem;
-            animation: slideUp 0.3s ease; border: 1px solid var(--glass-border);
-            max-height: 90vh; overflow-y: auto;
-        }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .chart-legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 15px; font-size: 0.75rem; }
-        .legend-item { display: flex; align-items: center; gap: 6px; color: var(--text-main); justify-content: space-between; }
-        .legend-color { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-        
-        .quick-tags { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; white-space: nowrap; }
-        .tag-chip { 
-            padding: 8px 16px; background: var(--glass-bg); border: 1px solid var(--glass-border); 
-            border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px;
-        }
-        .tag-chip:hover { background: var(--primary); color: white; border-color: var(--primary); }
-        .tag-chip i { font-size: 0.9rem; }
-        
-        .import-list-item {
-            padding: 10px; border-bottom: 1px solid var(--glass-border); 
-            display: grid; 
-            grid-template-columns: 80px 1fr 100px 130px 100px 40px; 
-            gap: 10px; 
-            align-items: center; font-size: 0.85rem;
-        }
-        .import-list-item:last-child { border-bottom: none; }
-        .import-list-item select { padding: 4px; font-size: 0.8rem; margin: 0; }
-
-        .hidden { display: none !important; }
-
-        @media (max-width: 768px) {
-            .col { min-width: 100%; }
-            header { padding: 1rem; }
-            h1 { font-size: 1.2rem; }
-            .btn span { display: none; }
-            .btn { padding: 10px; }
-            .planner-card-container { flex: 0 0 280px; }
-            .import-list-item { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
-            .import-list-item select { width: 100%; }
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <h1><i class="fa-solid fa-bolt"></i> Functus <span class="badge-v3">v7.5 Finale</span></h1>
-    <div style="display: flex; gap: 10px; align-items: center;">
-        <button class="btn btn-primary" onclick="app.openImportModal()" title="Importar Fatura via Texto"><i class="fa-solid fa-paste"></i> <span style="display:inline">Importar</span></button>
-        <button class="btn btn-ghost" onclick="app.toggleTheme()" title="Mudar Tema"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
-        <button class="btn btn-ghost" onclick="app.showDebtProjection()" title="Até quando eu pago?"><i class="fa-solid fa-hourglass-half"></i></button>
-        <button class="btn btn-gold" onclick="app.recommendCard()" title="Melhor Cartão"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
-        <button id="btnBackup" class="btn btn-ghost" onclick="app.exportData()" title="Salvar Backup"><i class="fa-solid fa-download"></i></button>
-        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" title="Restaurar"><i class="fa-solid fa-upload"></i></button>
-        <input type="file" id="fileInput" class="hidden" onchange="app.importData(this)">
-    </div>
-</header>
-
-<div style="text-align: center; padding-top: 20px; overflow-x: hidden;">
-    <div class="nav-container">
-        <div class="nav-tab active" onclick="app.switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</div>
-        <div class="nav-tab" onclick="app.switchTab('planner')"><i class="fa-regular fa-calendar-check"></i> Planner</div>
-        <div class="nav-tab" onclick="app.switchTab('entries')"><i class="fa-solid fa-pen-to-square"></i> Lançar</div>
-        <div class="nav-tab" onclick="app.switchTab('cards')"><i class="fa-regular fa-credit-card"></i> Cartões</div>
-    </div>
-</div>
-
-<main id="main-content"></main>
-
-<script>
 /**
  * ============================================================================
- * FUNCTUS v7.5 - REFINED VAVILOV
+ * FUNCTUS v8.0 - INFINITY PROTOCOL & GARBAGE COLLECTOR
  * ============================================================================
  */
 
@@ -322,11 +29,52 @@ const Utils = {
         const [y, m] = expStr.split('-').map(Number);
         const expDate = new Date(y, m, 0); 
         return new Date() > expDate;
+    },
+    year: () => new Date().getFullYear()
+};
+
+/**
+ * MÓDULO NOVO: GERENCIADOR DE ARMAZENAMENTO (GARBAGE COLLECTOR)
+ * Monitora o peso do localStorage para evitar o erro "QuotaExceededError"
+ */
+const StorageManager = {
+    MAX_SIZE: 4.8 * 1024 * 1024, // Limite de Segurança (~4.8MB, navegadores dão crash em 5MB)
+    
+    getSize() {
+        let total = 0;
+        for (let x in localStorage) {
+            if (localStorage.hasOwnProperty(x)) {
+                total += ((localStorage[x].length + x.length) * 2); // *2 para UTF-16
+            }
+        }
+        return total;
+    },
+
+    getPercentage() {
+        return (this.getSize() / this.MAX_SIZE) * 100;
+    },
+
+    checkHealth() {
+        const pct = this.getPercentage();
+        const el = document.getElementById('storageMeter');
+        const txt = document.getElementById('storageText');
+        
+        if(el && txt) {
+            txt.innerText = pct.toFixed(1) + '%';
+            el.className = 'storage-pill'; 
+            
+            if(pct > 95) {
+                el.classList.add('critical');
+                if(window.app) window.app.triggerCriticalCleanup(); // Aciona emergência
+            } else if (pct > 75) {
+                el.classList.add('warning');
+            }
+        }
     }
 };
 
 const Store = {
-    DB_KEY: 'functus_v7_finale',
+    DB_KEY: 'functus_v8_infinity', // Atualizado para a nova versão
     
     data: {
         cards: [], 
@@ -345,12 +93,17 @@ const Store = {
         if (saved) {
             this.data = JSON.parse(saved);
         } else {
+            // Migração de versões anteriores (V7, V6, etc)
+            const oldV7 = localStorage.getItem('functus_v7_finale');
             const oldV6 = localStorage.getItem('functus_v6_diamond');
-            const oldV5 = localStorage.getItem('functus_v6_megazord');
-            if(oldV6) { this.data = JSON.parse(oldV6); this.migrateData(); this.save(); }
-            else if(oldV5) { this.data = JSON.parse(oldV5); this.migrateData(); this.save(); }
+            
+            if(oldV7) { this.data = JSON.parse(oldV7); this.save(); }
+            else if(oldV6) { this.data = JSON.parse(oldV6); this.migrateData(); this.save(); }
             else { this.seed(); }
         }
+        
+        this.checkNewYear();
+        StorageManager.checkHealth();
     },
 
     migrateData() {
@@ -372,8 +125,26 @@ const Store = {
     },
 
     save() {
-        localStorage.setItem(this.DB_KEY, JSON.stringify(this.data));
-        if (window.app) window.app.render(); 
+        try {
+            localStorage.setItem(this.DB_KEY, JSON.stringify(this.data));
+            localStorage.setItem('functus_last_year', new Date().getFullYear());
+            StorageManager.checkHealth();
+            if (window.app) window.app.render(); 
+        } catch (e) {
+            // SE O NAVEGADOR GRITAR "QUOTA EXCEEDED", O GARBAGE COLLECTOR ENTRA EM AÇÃO
+            alert("ERRO CRÍTICO: Armazenamento Cheio! O Protocolo Fênix será iniciado para limpar dados antigos.");
+            if(window.app) window.app.triggerCriticalCleanup();
+        }
+    },
+    
+    checkNewYear() {
+        const lastYear = localStorage.getItem('functus_last_year');
+        const currentYear = new Date().getFullYear();
+        if (lastYear && parseInt(lastYear) < currentYear) {
+            setTimeout(() => {
+                if(window.app) window.app.showNewYearModal(lastYear);
+            }, 1500);
+        }
     },
 
     seed() {
@@ -556,6 +327,7 @@ const App = {
     checkBackupStatus() {
         const lastBackup = localStorage.getItem('functus_last_backup');
         const btn = document.getElementById('btnBackup');
+        if(!btn) return;
         if (!lastBackup) { btn.classList.add('btn-danger-pulse'); return; }
         const days = Utils.diffDays(new Date(), new Date(parseInt(lastBackup)));
         if (days > 15) {
@@ -570,12 +342,14 @@ const App = {
         this.tab = t; 
         this.plannerFilter = 'ALL'; 
         document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll(`.nav-tab[onclick="app.switchTab('${t}')"]`).forEach(el => el.classList.add('active'));
+        const activeTab = document.querySelector(`.nav-tab[onclick="app.switchTab('${t}')"]`);
+        if(activeTab) activeTab.classList.add('active');
         this.render(); 
     },
 
     render() {
         const main = document.getElementById('main-content');
+        if(!main) return;
         main.innerHTML = '';
         if(this.tab === 'dashboard') this.renderDashboard(main);
         if(this.tab === 'planner') this.renderPlanner(main);
@@ -1356,34 +1130,51 @@ const App = {
         if(!text) return alert("Cole algum texto!");
         
         this.importedItems = [];
-        // REGEX VAVILOV: Captura Data (DD/MM), Descrição e Valor (R$ XX,XX)
-        const regex = /(\d{2}\/\d{2})\s+([A-Z0-9\s\*\.\-]+?)\s+(\d{1,2}\/\d{1,2})?\s*(-?[\d\.]+,\d{2})/g;
+        
+        // REGEX HÍBRIDA (VAVILOV 2.0)
+        // 1. Data (DD/MM)
+        // 2. Descrição (Pega tudo até encontrar o padrão de parcela ou valor)
+        // 3. Parcela Opcional (Aceita 01/12, F01/12, T01/10)
+        // 4. Valor (Aceita R$, espaços, negativos, pontos e vírgulas)
+        const regex = /(\d{2}\/\d{2})\s+(.*?)(?:\s+([A-Z]?\d{1,2}\/\d{1,2}))?\s+(?:R\$\s*)?(-?[\d\.,]+)/g;
         
         let match;
         const year = new Date().getFullYear(); 
         
         while ((match = regex.exec(text)) !== null) {
             const dateStr = match[1];
-            const desc = match[2].trim();
-            const instStr = match[3]; 
-            const valStr = match[4];
+            let desc = match[2].trim();
+            let instStr = match[3]; 
+            let valStr = match[4];
 
-            if (desc.includes("SALDO") || desc.includes("PAGAMENTO") || desc.includes("CREDITO") || valStr.includes("-")) continue;
+            // Ignorar linhas de saldo/pagamento
+            if (desc.includes("SALDO") || desc.includes("PAGAMENTO") || desc.includes("CREDITO")) continue;
 
+            // Tratamento da Parcela (Remove letras como 'F' de 'F05/06')
             let installments = 1;
-            let finalDesc = desc;
-
             if (instStr) {
-                finalDesc = `${desc} (${instStr})`; 
+                // Remove qualquer letra que não seja número ou barra
+                const cleanInst = instStr.replace(/[^\d\/]/g, '');
+                desc = `${desc} (${cleanInst})`; 
             }
 
-            const value = parseFloat(valStr.replace(/\./g, '').replace(',', '.'));
+            // Tratamento Inteligente de Valor (Ponto vs Vírgula)
+            // Se tiver vírgula, assume formato Brasileiro (1.000,00 -> 1000.00)
+            // Se só tiver ponto, assume formato Americano (1000.00)
+            let value;
+            if (valStr.includes(',')) {
+                value = parseFloat(valStr.replace(/\./g, '').replace(',', '.'));
+            } else {
+                value = parseFloat(valStr);
+            }
+
             const [d, m] = dateStr.split('/');
+            // Lógica simples de ano
             const fullDate = `${year}-${m}-${d}`;
 
             this.importedItems.push({
                 date: fullDate,
-                desc: finalDesc,
+                desc: desc,
                 value: value,
                 inst: installments
             });
@@ -1489,12 +1280,92 @@ const App = {
             location.reload(); 
         }; 
         r.readAsText(input.files[0]); 
+    },
+
+    // --- PROTOCOLO FÊNIX (LÓGICA DE LIMPEZA E ANO NOVO) ---
+
+    showNewYearModal(oldYear) {
+        const modalHTML = `
+        <div class="modal-overlay" id="yearModal" style="z-index:999">
+            <div class="modal-content" style="text-align:center">
+                <h2><i class="fa-solid fa-champagne-glasses" style="color:gold"></i> Feliz Ano Novo!</h2>
+                <p>Bem-vindo a <strong>${Utils.year()}</strong>.</p>
+                <p>Para manter o sistema rápido, deseja arquivar as despesas quitadas de ${oldYear}?</p>
+                <div style="background:rgba(0,0,0,0.05); padding:15px; border-radius:10px; margin:20px 0; text-align:left; font-size:0.9rem">
+                    <strong>Serão arquivados (removidos):</strong><br>
+                    • Compras à vista de anos anteriores.<br>
+                    • Parcelamentos antigos 100% pagos.<br><br>
+                    <strong>Permanecem:</strong><br>
+                    • Parcelas a vencer (dívidas ativas).<br>
+                    • Tudo do ano atual.
+                </div>
+                <button class="btn btn-primary" onclick="app.executePurge(); document.getElementById('yearModal').remove()">Sim, Limpar a Casa!</button>
+                <button class="btn btn-ghost" onclick="document.getElementById('yearModal').remove()">Agora não</button>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    },
+
+    triggerCriticalCleanup() {
+        const modalHTML = `
+        <div class="modal-overlay" style="z-index:1000">
+            <div class="modal-content" style="border: 2px solid red">
+                <h2 style="color:red"><i class="fa-solid fa-triangle-exclamation"></i> ARMAZENAMENTO CRÍTICO</h2>
+                <p>O sistema atingiu o limite de segurança do navegador (> 4.8MB).</p>
+                <p>Para evitar perda de dados, o <strong>Protocolo Fênix</strong> é obrigatório agora:</p>
+                <ol style="text-align:left">
+                    <li>Download automático do backup completo.</li>
+                    <li>Limpeza de registros antigos e quitados.</li>
+                    <li>Reinício do sistema.</li>
+                </ol>
+                <button class="btn btn-danger" onclick="app.executePurge()">EXECUTAR LIMPEZA AGORA</button>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    },
+
+    executePurge() {
+        // 1. Força Backup
+        this.exportData("functus_ARCHIVE_FULL");
+
+        const currentYear = new Date().getFullYear();
+        const initialCount = Store.data.expenses.length;
+        
+        // 2. Filtro Lógico (Quem Fica?)
+        const newExpenses = Store.data.expenses.filter(exp => {
+            const expYear = parseInt(exp.date.split('-')[0]);
+            
+            // Regra A: Se é do ano atual ou futuro, FICA.
+            if (expYear >= currentYear) return true;
+
+            // Regra B: Se é RECORRENTE e ativo (sem data fim), FICA.
+            if (exp.type === 'recorrente' && !exp.terminationDate) return true;
+
+            // Regra C: Se é PARCELADO (cartão ou boleto)
+            if (exp.type === 'parcelado' || exp.type === 'boleto_parcelado') {
+                const totalInst = parseInt(exp.installments);
+                const paidCount = exp.paidPeriods ? exp.paidPeriods.length : 0;
+                
+                // Se AINDA NÃO PAGOU TUDO (dívida ativa), FICA.
+                if (paidCount < totalInst) return true;
+            }
+
+            // Se falhou nas regras acima (ex: à vista de 2023, ou parcelado quitado de 2024), VAI EMBORA.
+            return false; 
+        });
+
+        // 3. Aplica e Salva
+        Store.data.expenses = newExpenses;
+        try {
+            localStorage.setItem(Store.DB_KEY, JSON.stringify(Store.data));
+            const removed = initialCount - newExpenses.length;
+            alert(`Limpeza concluída!\n\n${removed} registros antigos foram arquivados.\nSeu sistema está leve novamente.`);
+            location.reload();
+        } catch(e) {
+            alert("Erro ao salvar após limpeza. Backup manual recomendado.");
+        }
     }
 };
 
 window.app = App;
 App.init();
-
-</script>
-</body>
-</html>
