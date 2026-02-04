@@ -1,0 +1,269 @@
+{
+  "categories": [
+    "Alimentação", "Mercado", "Água/Luz/Net", "Tributos", 
+    "Pets", "Moradia", "Lazer", "Viagens", "Educação", 
+    "Filhos", "Saúde", "Streaming", "Escritório", "Veículo", "Investimento"
+  ],
+  "beneficiaries": ["Geral", "Hugo", "Lívia", "Helena", "Nina", "Lilica", "Casa"],
+  "cards": [
+    {
+      "id": "c_xp_inf",
+      "name": "XP Infinite",
+      "brand": "Visa",
+      "issuer": "XP Investimentos",
+      "lastDigits": "92",
+      "limit": 45000,
+      "closingDay": 5,
+      "dueDay": 10,
+      "status": "active",
+      "skin": "skin-black"
+    },
+    {
+      "id": "c_nubank",
+      "name": "Roxinho Emergência",
+      "brand": "Mastercard",
+      "issuer": "Nubank",
+      "lastDigits": "14",
+      "limit": 2000,
+      "closingDay": 25,
+      "dueDay": 1,
+      "status": "active",
+      "skin": "skin-purple"
+    },
+    {
+      "id": "c_inter_dead",
+      "name": "Inter Antigo",
+      "brand": "Mastercard",
+      "issuer": "Banco Inter",
+      "lastDigits": "88",
+      "limit": 10000,
+      "closingDay": 10,
+      "dueDay": 15,
+      "status": "cancelled",
+      "skin": "skin-gold"
+    },
+    {
+      "id": "c_pan_sleep",
+      "name": "Pan (Reserva)",
+      "brand": "Elo",
+      "issuer": "Banco Pan",
+      "lastDigits": "33",
+      "limit": 5000,
+      "closingDay": 20,
+      "dueDay": 28,
+      "status": "sleeping",
+      "skin": "skin-blue"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "exp_reforma",
+      "description": "Reforma Cozinha e Área",
+      "value": 30000.00,
+      "type": "parcelado",
+      "category": "Moradia",
+      "beneficiary": "Casa",
+      "cardId": "c_xp_inf",
+      "installments": 60,
+      "paidPeriods": [
+        "2023-06", "2023-07", "2023-08", "2023-09", "2023-10", "2023-11", "2023-12",
+        "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12",
+        "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12",
+        "2026-01"
+      ],
+      "date": "2023-05-15"
+    },
+    {
+      "id": "exp_iphone",
+      "description": "iPhone 16 Pro Max",
+      "value": 11500.00,
+      "type": "parcelado",
+      "category": "Lazer",
+      "beneficiary": "Hugo",
+      "cardId": "c_xp_inf",
+      "installments": 12,
+      "paidPeriods": ["2025-11", "2025-12", "2026-01"],
+      "date": "2025-10-20"
+    },
+    {
+      "id": "exp_tv",
+      "description": "TV Samsung 65'",
+      "value": 4200.00,
+      "type": "parcelado",
+      "category": "Moradia",
+      "beneficiary": "Casa",
+      "cardId": "c_nubank",
+      "installments": 10,
+      "paidPeriods": ["2025-12", "2026-01"],
+      "date": "2025-11-28"
+    },
+    {
+      "id": "exp_uber_1",
+      "description": "Uber Trabalho",
+      "value": 24.90,
+      "type": "cartao_avista",
+      "category": "Escritório",
+      "beneficiary": "Hugo",
+      "cardId": "c_xp_inf",
+      "installments": 1,
+      "paidPeriods": [],
+      "date": "2026-02-02"
+    },
+    {
+      "id": "exp_uber_2",
+      "description": "Uber Volta",
+      "value": 32.50,
+      "type": "cartao_avista",
+      "category": "Escritório",
+      "beneficiary": "Hugo",
+      "cardId": "c_xp_inf",
+      "installments": 1,
+      "paidPeriods": [],
+      "date": "2026-02-02"
+    },
+    {
+      "id": "exp_ifood_1",
+      "description": "iFood Sushi",
+      "value": 120.00,
+      "type": "cartao_avista",
+      "category": "Alimentação",
+      "beneficiary": "Geral",
+      "cardId": "c_xp_inf",
+      "installments": 1,
+      "paidPeriods": [],
+      "date": "2026-02-03"
+    },
+    {
+      "id": "exp_ifood_2",
+      "description": "iFood Pizza",
+      "value": 89.90,
+      "type": "cartao_avista",
+      "category": "Alimentação",
+      "beneficiary": "Geral",
+      "cardId": "c_xp_inf",
+      "installments": 1,
+      "paidPeriods": [],
+      "date": "2026-02-05"
+    },
+    {
+      "id": "exp_mercado_1",
+      "description": "Carrefour Compra Mês",
+      "value": 1450.00,
+      "type": "cartao_avista",
+      "category": "Mercado",
+      "beneficiary": "Casa",
+      "cardId": "c_xp_inf",
+      "installments": 1,
+      "paidPeriods": [],
+      "date": "2026-02-01"
+    },
+    {
+      "id": "exp_streaming_1",
+      "description": "Netflix 4K",
+      "value": 55.90,
+      "type": "recorrente",
+      "category": "Streaming",
+      "beneficiary": "Geral",
+      "cardId": "c_nubank",
+      "installments": 1,
+      "paidPeriods": [],
+      "date": "2025-01-10"
+    },
+    {
+      "id": "exp_streaming_2",
+      "description": "Spotify Family",
+      "value": 34.90,
+      "type": "recorrente",
+      "category": "Streaming",
+      "beneficiary": "Geral",
+      "cardId": "c_nubank",
+      "installments": 1,
+      "paidPeriods": [],
+      "date": "2025-01-15"
+    },
+    {
+      "id": "exp_streaming_3",
+      "description": "Disney+",
+      "value": 45.90,
+      "type": "recorrente",
+      "category": "Streaming",
+      "beneficiary": "Lívia",
+      "cardId": "c_nubank",
+      "installments": 1,
+      "paidPeriods": [],
+      "date": "2025-01-20"
+    },
+    {
+      "id": "exp_curso",
+      "description": "Pós Graduação",
+      "value": 12000.00,
+      "type": "parcelado",
+      "category": "Educação",
+      "beneficiary": "Hugo",
+      "cardId": "c_inter_dead",
+      "installments": 24,
+      "paidPeriods": ["2025-01", "2025-02", "2025-03"],
+      "date": "2024-12-10"
+    },
+    {
+      "id": "exp_vet",
+      "description": "Internação Lilica",
+      "value": 2500.00,
+      "type": "parcelado",
+      "category": "Pets",
+      "beneficiary": "Lilica",
+      "cardId": "c_xp_inf",
+      "installments": 5,
+      "paidPeriods": [],
+      "date": "2026-01-28"
+    },
+    {
+      "id": "exp_futuro",
+      "description": "Reserva Hotel 2027",
+      "value": 5000.00,
+      "type": "parcelado",
+      "category": "Viagens",
+      "beneficiary": "Geral",
+      "cardId": "c_xp_inf",
+      "installments": 10,
+      "paidPeriods": [],
+      "date": "2027-01-15"
+    },
+    {
+      "id": "exp_padaria_1",
+      "description": "Padaria Manhã",
+      "value": 35.00,
+      "type": "cartao_avista",
+      "category": "Alimentação",
+      "beneficiary": "Geral",
+      "cardId": "c_xp_inf",
+      "installments": 1,
+      "paidPeriods": [],
+      "date": "2026-02-06"
+    },
+    {
+      "id": "exp_padaria_2",
+      "description": "Padaria Tarde",
+      "value": 15.00,
+      "type": "cartao_avista",
+      "category": "Alimentação",
+      "beneficiary": "Geral",
+      "cardId": "c_xp_inf",
+      "installments": 1,
+      "paidPeriods": [],
+      "date": "2026-02-07"
+    },
+    {
+      "id": "exp_gasolina",
+      "description": "Tanque Cheio",
+      "value": 280.00,
+      "type": "cartao_avista",
+      "category": "Veículo",
+      "beneficiary": "Casa",
+      "cardId": "c_xp_inf",
+      "installments": 1,
+      "paidPeriods": [],
+      "date": "2026-02-04"
+    }
+  ]
+}

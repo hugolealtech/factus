@@ -1,0 +1,87 @@
+{
+    "cards": [
+        {
+            "id": "c1",
+            "name": "Itau Card Click Platinum",
+            "brand": "Visa",
+            "issuer": "XP",
+            "lastDigits": "99",
+            "limit": "30000",
+            "closingDay": "19",
+            "dueDay": "25",
+            "status": "active",
+            "skin": "skin-gold",
+            "expiration": "2030-12"
+        },
+        {
+            "id": "ml5dd3g3o8tug5gqkz",
+            "name": "Amazon Mastercard Platinum",
+            "limit": "5000",
+            "closingDay": "03",
+            "dueDay": "15",
+            "skin": "skin-blue",
+            "status": "active",
+            "lastDigits": "00"
+        },
+        {
+            "id": "ml5dt9cra4tp8ljvf7a",
+            "name": "Porto Seguro Platinum",
+            "limit": "20000",
+            "closingDay": "12",
+            "dueDay": "20",
+            "skin": "skin-black",
+            "status": "active",
+            "lastDigits": "00"
+        },
+        {
+            "id": "ml5dwmcftmfnwosjpva",
+            "name": "SAM`S CLUB",
+            "limit": "1100",
+            "closingDay": "07",
+            "dueDay": "12",
+            "skin": "skin-purple",
+            "status": "active",
+            "lastDigits": "00"
+        },
+        {
+            "id": "ml5kegq3k3n6x8s48z",
+            "name": "LATAM PASS ITAU LÍVIA",
+            "limit": "12010",
+            "closingDay": "10",
+            "dueDay": "18",
+            "skin": "skin-platinum",
+            "status": "active",
+            "lastDigits": "2990"
+        }
+    ],
+    "expenses": [],
+    "categories": [
+        "Alimentação",
+        "Mercado",
+        "Água/Luz/Net",
+        "Tributos",
+        "Pets",
+        "Moradia",
+        "Lazer",
+        "Viagens",
+        "Educação",
+        "Filhos",
+        "Beleza",
+        "Entretenimento",
+        "Leitura",
+        "Saúde",
+        "Streaming",
+        "Escritório",
+        "Veículo: Combustível",
+        "Veículo: Manutenção",
+        "Outros"
+    ],
+    "beneficiaries": [
+        "Geral",
+        "Hugo",
+        "Lívia",
+        "Helena",
+        "Nina",
+        "Lilica"
+    ]
+}

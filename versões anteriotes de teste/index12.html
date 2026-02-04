@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Functus v8.1 - Dashboard Prime</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+         * ESTILOS (CSS) - Visual v7.5 Preservado
+         * ========================================= */
+        :root {
+            --bg-body: #ece9e6; --bg-gradient: linear-gradient(to right, #ece9e6, #ffffff);
+            --glass-bg: rgba(255, 255, 255, 0.90); --glass-border: rgba(255, 255, 255, 0.6);
+            --text-main: #1e293b; --text-light: #64748b; --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --primary: #2563eb; --secondary: #64748b; --accent: #f59e0b; --danger: #ef4444; 
+            --success: #10b981; --info: #0ea5e9; --dark: #0f172a; --boleto: #475569;
+        }
+        [data-theme="dark"] {
+            --bg-body: #0f172a; --bg-gradient: linear-gradient(to right, #0f172a, #1e293b);
+            --glass-bg: rgba(30, 41, 59, 0.85); --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f1f5f9; --text-light: #94a3b8; --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-gradient); color: var(--text-main); margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; transition: background 0.3s, color 0.3s; }
+        
+        /* Layout & Header */
+        header { background: var(--glass-bg); backdrop-filter: blur(10px); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); z-index: 100; flex-wrap: wrap; gap: 10px; }
+        h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+        .badge-v3 { background: var(--accent); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; text-transform: uppercase; }
+        main { flex: 1; padding: 1rem; overflow-y: auto; max-width: 1200px; margin: 0 auto; width: 100%; }
+        
+        /* Components */
+        .glass-panel { background: var(--glass-bg); box-shadow: var(--card-shadow); backdrop-filter: blur(8px); border-radius: 20px; border: 1px solid var(--glass-border); padding: 1.5rem; margin-bottom: 1.5rem; }
+        .row { display: flex; flex-wrap: wrap; gap: 20px; }
+        .col { flex: 1; min-width: 300px; }
+        .hidden { display: none !important; }
+
+        /* Navigation */
+        .nav-container { background: var(--glass-bg); padding: 5px; border-radius: 50px; display: inline-flex; box-shadow: var(--card-shadow); margin-bottom: 20px; max-width: 100%; overflow-x: auto; white-space: nowrap; }
+        .nav-tab { padding: 10px 25px; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--text-light); transition: all 0.3s; display: flex; align-items: center; gap: 8px; }
+        .nav-tab:hover { color: var(--primary); background: rgba(255,255,255,0.1); }
+        .nav-tab.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+
+        /* Buttons & Inputs */
+        .btn { padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-ghost { background: transparent; color: var(--text-main); border: 1px solid var(--text-light); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger-pulse { background: var(--danger); color: white; animation: pulse 2s infinite; }
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid var(--glass-border); border-radius: 10px; font-size: 0.95rem; background: rgba(255,255,255,0.5); color: var(--text-main); font-family: 'Inter', sans-serif; }
+        
+        /* Storage Meter (v8) */
+        .storage-pill { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; background: rgba(0,0,0,0.05); border: 1px solid var(--glass-border); cursor: help; }
+        .storage-pill.critical { background: var(--danger); color: white; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* Credit Cards Styling */
+        .credit-card-v3 { height: 190px; width: 100%; border-radius: 16px; padding: 25px; color: white; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.4); font-family: 'Share Tech Mono', monospace; border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s; }
+        .credit-card-v3:hover { transform: translateY(-5px); }
+        .credit-card-v3::before { content: ''; position: absolute; top: 0; left: 0; width: 200%; height: 200%; background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.15) 0%, transparent 60%); pointer-events: none; }
+        .card-status-badge { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; font-family: 'Inter', sans-serif; }
+        .card-chip { width: 40px; height: 30px; background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%); border-radius: 5px; margin-bottom: 10px; position: relative; overflow: hidden; border: 1px solid rgba(0,0,0,0.2); }
+        .card-number { font-size: 1.4rem; letter-spacing: 2px; text-shadow: 0 2px 2px rgba(0,0,0,0.5); }
+        
+        /* Skins */
+        .skin-black { background: linear-gradient(135deg, #2b2b2b 0%, #000000 100%); }
+        .skin-blue { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
+        .skin-gold { background: linear-gradient(135deg, #CAC531 0%, #F3F9A7 100%); color: #4a3b10; text-shadow: none; }
+        
+        /* Charts & Progress */
+        .progress-track { height: 10px; background: rgba(0,0,0,0.1); border-radius: 5px; overflow: hidden; margin-top: 5px; }
+        .progress-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+        .chart-legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 15px; font-size: 0.75rem; }
+        .legend-item { display: flex; align-items: center; gap: 6px; justify-content: space-between; }
+        .legend-color { width: 10px; height: 10px; border-radius: 50%; }
+
+        /* Planner Items */
+        .planner-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--glass-bg); border-radius: 12px; margin-bottom: 10px; border-left: 5px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .status-safe { border-left-color: var(--success); }
+        .status-danger { border-left-color: var(--danger); }
+        .status-warning { border-left-color: var(--accent); }
+        .status-paid { border-left-color: var(--text-light); opacity: 0.6; filter: grayscale(0.8); }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 200; }
+        .modal-content { background: var(--bg-body); color: var(--text-main); width: 800px; max-width: 95%; border-radius: 16px; padding: 2rem; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid var(--glass-border); }
+
+        @media (max-width: 768px) { .col { min-width: 100%; } header { padding: 1rem; } h1 { font-size: 1.2rem; } .btn span { display: none; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fa-solid fa-bolt"></i> Functus <span class="badge-v3">v8.1</span></h1>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <div id="storageMeter" class="storage-pill" title="Uso do Armazenamento Local">
+            <i class="fa-solid fa-database"></i> <span id="storageText">0%</span>
+        </div>
+        <button class="btn btn-primary" onclick="app.openImportModal()" title="Importar"><i class="fa-solid fa-paste"></i> <span>Importar</span></button>
+        <button class="btn btn-ghost" onclick="app.toggleTheme()"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
+        <button id="btnBackup" class="btn btn-ghost" onclick="app.exportData()"><i class="fa-solid fa-download"></i></button>
+        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()"><i class="fa-solid fa-upload"></i></button>
+        <input type="file" id="fileInput" class="hidden" onchange="app.importData(this)">
+    </div>
+</header>
+
+<div style="text-align: center; padding-top: 20px; overflow-x: hidden;">
+    <div class="nav-container">
+        <div class="nav-tab active" onclick="app.switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</div>
+        <div class="nav-tab" onclick="app.switchTab('planner')"><i class="fa-regular fa-calendar-check"></i> Planner</div>
+        <div class="nav-tab" onclick="app.switchTab('entries')"><i class="fa-solid fa-pen-to-square"></i> Lançar</div>
+        <div class="nav-tab" onclick="app.switchTab('cards')"><i class="fa-regular fa-credit-card"></i> Cartões</div>
+    </div>
+</div>
+
+<main id="main-content"></main>
+
+<script>
+/**
+ * ============================================================================
+ * LÓGICA DO SISTEMA (JAVASCRIPT) - UNIFICADO
+ * ============================================================================
+ */
+const Utils = {
+    uuid: () => Date.now().toString(36) + Math.random().toString(36).substr(2),
+    formatCurrency: (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val),
+    toDate: (str) => new Date(str + 'T12:00:00'),
+    addMonths: (date, months) => { const d = new Date(date); d.setMonth(d.getMonth() + months); return d; },
+    diffDays: (d1, d2) => Math.ceil((new Date(d1).setHours(0,0,0,0) - new Date(d2).setHours(0,0,0,0)) / (864e5)),
+    getTodayStr: () => new Date().toISOString().split('T')[0],
+    formatMonth: (date) => date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+    formatDate: (dateStr) => {
+        if(!dateStr) return 'N/A';
+        const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00');
+        if(isNaN(d.getTime())) return 'Data Inválida';
+        return d.toLocaleDateString('pt-BR');
+    },
+    strToColor: (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+        return '#' + '00000'.substring(0, 6 - c.length) + c;
+    },
+    isExpired: (expStr) => {
+        if(!expStr) return false;
+        const [y, m] = expStr.split('-').map(Number);
+        const expDate = new Date(y, m, 0); 
+        return new Date() > expDate;
+    },
+    year: () => new Date().getFullYear()
+};
+
+// --- Storage Manager (Garbage Collector Support) ---
+const StorageManager = {
+    MAX_SIZE: 4.8 * 1024 * 1024,
+    getSize() {
+        let total = 0;
+        for (let x in localStorage) { if (localStorage.hasOwnProperty(x)) total += ((localStorage[x].length + x.length) * 2); }
+        return total;
+    },
+    getPercentage() { return (this.getSize() / this.MAX_SIZE) * 100; },
+    checkHealth() {
+        const pct = this.getPercentage();
+        const el = document.getElementById('storageMeter');
+        const txt = document.getElementById('storageText');
+        if(el && txt) {
+            txt.innerText = pct.toFixed(1) + '%';
+            el.className = 'storage-pill'; 
+            if(pct > 95) { el.classList.add('critical'); if(window.app) window.app.triggerCriticalCleanup(); } 
+            else if (pct > 75) { el.classList.add('warning'); }
+        }
+    }
+};
+
+const Store = {
+    DB_KEY: 'functus_v8_db',
+    data: {
+        cards: [], expenses: [],
+        categories: [ "Alimentação", "Mercado", "Água/Luz/Net", "Tributos", "Pets", "Moradia", "Lazer", "Viagens", "Educação", "Filhos", "Saúde", "Streaming", "Escritório", "Veículo: Combustível", "Veículo: Manutenção" ],
+        beneficiaries: ["Geral", "Hugo", "Lívia", "Helena", "Nina", "Lilica"]
+    },
+    init() {
+        const saved = localStorage.getItem(this.DB_KEY);
+        if (saved) { this.data = JSON.parse(saved); } 
+        else {
+            // Tenta migrar dados antigos ou criar demo
+            const old = localStorage.getItem('functus_v7_finale');
+            if(old) { this.data = JSON.parse(old); this.save(); }
+            else { this.data.cards.push({ id: 'c1', name: 'Demo Card', brand: 'Visa', limit: 5000, closingDay: 5, dueDay: 10, status: 'active', skin: 'skin-black' }); }
+        }
+        this.checkNewYear();
+        StorageManager.checkHealth();
+    },
+    save() {
+        try {
+            localStorage.setItem(this.DB_KEY, JSON.stringify(this.data));
+            localStorage.setItem('functus_last_year', new Date().getFullYear());
+            StorageManager.checkHealth();
+            if (window.app) window.app.render(); 
+        } catch (e) {
+            alert("ERRO: Armazenamento Cheio! Limpeza Necessária.");
+            if(window.app) window.app.triggerCriticalCleanup();
+        }
+    },
+    checkNewYear() {
+        const lastYear = localStorage.getItem('functus_last_year');
+        const currentYear = new Date().getFullYear();
+        if (lastYear && parseInt(lastYear) < currentYear) {
+            setTimeout(() => { if(window.app) window.app.showNewYearModal(lastYear); }, 1500);
+        }
+    }
+};
+
+const Ledger = {
+    getCardLimitStatus(cardId) {
+        const card = Store.data.cards.find(c => c.id === cardId);
+        if (!card) return { total: 0, used: 0, available: 0 };
+        let used = 0;
+        Store.data.expenses.forEach(exp => {
+            if (exp.cardId !== cardId || exp.type === 'recorrente') return; 
+            const totalInst = parseInt(exp.installments) || 1;
+            const parcelValue = parseFloat(exp.value) / totalInst;
+            const paidCount = exp.paidPeriods ? exp.paidPeriods.length : 0;
+            const remainingValue = parseFloat(exp.value) - (paidCount * parcelValue);
+            if(remainingValue > 0) used += remainingValue;
+        });
+        const limit = parseFloat(card.limit || 0);
+        return { total: limit, used: used, available: limit - used };
+    },
+    
+    getMonthlyLedger(year, month, filterCardId = 'ALL') {
+        const targetYM = `${year}-${String(month).padStart(2, '0')}`;
+        const items = []; let total = 0, totalPaid = 0;
+        
+        Store.data.expenses.forEach(exp => {
+            const expDate = Utils.toDate(exp.date);
+            let startOffset = 0;
+            let cardName = 'Dinheiro/Boleto'; 
+            
+            if (exp.cardId) {
+                const card = Store.data.cards.find(c => c.id === exp.cardId);
+                if (card) {
+                    cardName = card.name;
+                    if (expDate.getDate() >= card.closingDay) startOffset = 1;
+                }
+            }
+            if(exp.type === 'boleto_parcelado') cardName = "Carnê/Boleto";
+            
+            let isApplicable = false, note = '';
+            const totalInst = parseInt(exp.installments) || 1;
+            
+            if (exp.type === 'recorrente') {
+                if ((!exp.terminationDate || targetYM <= exp.terminationDate) && (!exp.pausedPeriods || !exp.pausedPeriods.includes(targetYM)) && targetYM >= exp.date.substring(0, 7)) {
+                    isApplicable = true; note = 'Recorrente';
+                }
+            } else {
+                const firstParcelDate = Utils.addMonths(expDate, startOffset);
+                const diff = (year - firstParcelDate.getFullYear()) * 12 + (month - 1 - firstParcelDate.getMonth());
+                if (diff >= 0 && diff < totalInst) {
+                    isApplicable = true;
+                    note = (exp.type.includes('parcelado')) ? `${diff + 1}/${totalInst}` : 'À Vista';
+                }
+            }
+
+            if (isApplicable) {
+                let matchesFilter = true;
+                if(filterCardId !== 'ALL') {
+                    if(filterCardId === 'BOLETO' && exp.cardId) matchesFilter = false;
+                    else if(filterCardId !== 'BOLETO' && exp.cardId !== filterCardId) matchesFilter = false;
+                }
+
+                if(matchesFilter) {
+                    let val = parseFloat(exp.value) / totalInst;
+                    if (exp.type === 'recorrente' && exp.isVariable && exp.variations && exp.variations[targetYM]) { val = parseFloat(exp.variations[targetYM]); }
+                    const isPaid = exp.paidPeriods && exp.paidPeriods.includes(targetYM);
+                    total += val; if(isPaid) totalPaid += val;
+                    const dueDate = exp.cardId && Store.data.cards.find(c=>c.id===exp.cardId) ? new Date(year, month-1, Store.data.cards.find(c=>c.id===exp.cardId).dueDay) : new Date(year, month-1, expDate.getDate());
+                    const days = Utils.diffDays(dueDate, new Date());
+                    let status = isPaid ? 'status-paid' : (days <= 2 ? 'status-danger' : (days <= 7 ? 'status-warning' : 'status-safe'));
+                    
+                    items.push({ id: exp.id, desc: exp.description, val, note, dueDate, status, isPaid, targetYM, cardName, cat: exp.category, ben: exp.beneficiary, type: exp.type, cardId: exp.cardId });
+                }
+            }
+        });
+        items.sort((a,b) => a.dueDate - b.dueDate);
+        return { items, total, totalPaid, totalDue: total - totalPaid };
+    }
+};
+
+const App = {
+    tab: 'dashboard',
+    dashDate: new Date(),
+    plannerFilter: 'ALL',
+    charts: {},
+    importedItems: [],
+
+    init() { 
+        Store.init(); 
+        this.loadTheme();
+        this.checkBackupStatus();
+        this.render(); 
+    },
+
+    // --- RENDERIZADORES ---
+    render() {
+        const main = document.getElementById('main-content');
+        if(!main) return;
+        main.innerHTML = '';
+        if(this.tab === 'dashboard') this.renderDashboard(main);
+        if(this.tab === 'planner') this.renderPlanner(main);
+        if(this.tab === 'entries') this.renderEntries(main);
+        if(this.tab === 'cards') this.renderCards(main);
+    },
+
+    renderDashboard(el) {
+        const d = this.dashDate;
+        const curr = Ledger.getMonthlyLedger(d.getFullYear(), d.getMonth()+1);
+        const activeCards = Store.data.cards.filter(c => c.status === 'active');
+        
+        // HTML do Dashboard
+        el.innerHTML = `
+            <div class="row">
+                <div class="col" style="flex:2">
+                    <div class="glass-panel">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                            <button class="btn btn-ghost" onclick="app.navMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                            <div style="text-align:center">
+                                <h2 style="margin:0">${Utils.formatMonth(d)}</h2>
+                                <small>TOTAL: ${Utils.formatCurrency(curr.total)}</small>
+                            </div>
+                            <button class="btn btn-ghost" onclick="app.navMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px">
+                             <div style="text-align:center; padding:10px; border:1px solid var(--glass-border); border-radius:10px">
+                                <small>PAGO</small><br><strong style="color:var(--success); font-size:1.2rem">${Utils.formatCurrency(curr.totalPaid)}</strong>
+                             </div>
+                             <div style="text-align:center; padding:10px; border:1px solid var(--glass-border); border-radius:10px">
+                                <small>ABERTO</small><br><strong style="color:var(--danger); font-size:1.2rem">${Utils.formatCurrency(curr.totalDue)}</strong>
+                             </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col">
+                                <h3>Maiores Gastos (> R$ 50)</h3>
+                                <canvas id="chartNominal" style="max-height:250px"></canvas>
+                            </div>
+                            <div class="col">
+                                <h3>Por Categoria</h3>
+                                <canvas id="chartCat" style="max-height:200px"></canvas>
+                                <div id="catLegend" class="chart-legend-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col" style="flex:1">
+                     <div class="glass-panel">
+                        <h3>Limites dos Cartões</h3>
+                        ${activeCards.map(c => {
+                            const st = Ledger.getCardLimitStatus(c.id);
+                            const pct = st.total > 0 ? (st.used / st.total)*100 : 0;
+                            const color = pct > 85 ? 'var(--danger)' : (pct > 50 ? 'var(--accent)' : 'var(--success)');
+                            return `
+                            <div style="margin-bottom:15px">
+                                <div style="display:flex; justify-content:space-between; font-size:0.8rem">
+                                    <span>${c.name}</span><span>${Math.round(pct)}%</span>
+                                </div>
+                                <div class="progress-track"><div class="progress-fill" style="width:${pct}%; background:${color}"></div></div>
+                                <small style="color:var(--text-light)">${Utils.formatCurrency(st.available)} livres</small>
+                            </div>`;
+                        }).join('') || 'Nenhum cartão ativo.'}
+                    </div>
+                    <div class="glass-panel">
+                        <h3>Ranking (Quem gasta mais?)</h3>
+                        <canvas id="chartBen" style="max-height:200px"></canvas>
+                    </div>
+                </div>
+            </div>`;
+
+        // Renderização dos Gráficos (Chart.js)
+        setTimeout(() => {
+            if(this.charts.nom) this.charts.nom.destroy();
+            if(this.charts.cat) this.charts.cat.destroy();
+            if(this.charts.ben) this.charts.ben.destroy();
+
+            const textColor = document.body.getAttribute('data-theme') === 'dark' ? '#94a3b8' : '#64748b';
+
+            // 1. Maiores Gastos (> 50)
+            const majorItems = curr.items.filter(i => i.val >= 50).sort((a,b) => b.val - a.val).slice(0, 15);
+            this.charts.nom = new Chart(document.getElementById('chartNominal'), {
+                type: 'bar',
+                data: {
+                    labels: majorItems.map(i => i.desc.substring(0, 15)),
+                    datasets: [{ label: 'Valor', data: majorItems.map(i => i.val), backgroundColor: 'rgba(37, 99, 235, 0.7)', borderRadius: 4 }]
+                },
+                options: { indexAxis: 'y', plugins: { legend: {display:false} }, scales: { x: {ticks:{color:textColor}}, y: {ticks:{color:textColor}} } }
+            });
+
+            // 2. Categorias
+            const cats = {}; curr.items.forEach(i => cats[i.cat] = (cats[i.cat] || 0) + i.val);
+            this.charts.cat = new Chart(document.getElementById('chartCat'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(cats),
+                    datasets: [{ data: Object.values(cats), backgroundColor: Object.keys(cats).map(Utils.strToColor), borderWidth: 0 }]
+                },
+                options: { plugins: { legend: {display:false} } }
+            });
+            // Legenda Customizada
+            document.getElementById('catLegend').innerHTML = Object.keys(cats).map(k => `
+                <div class="legend-item">
+                    <div style="display:flex;align-items:center;gap:5px"><div class="legend-color" style="background:${Utils.strToColor(k)}"></div>${k}</div>
+                    <b>${Math.round((cats[k]/curr.total)*100)}%</b>
+                </div>`).join('');
+
+            // 3. Beneficiários
+            const bens = {}; curr.items.forEach(i => bens[i.ben] = (bens[i.ben] || 0) + i.val);
+            const sortedBens = Object.entries(bens).sort((a,b) => b[1] - a[1]);
+            this.charts.ben = new Chart(document.getElementById('chartBen'), {
+                type: 'bar',
+                data: {
+                    labels: sortedBens.map(b => b[0]),
+                    datasets: [{ label: 'Total', data: sortedBens.map(b => b[1]), backgroundColor: sortedBens.map(b => Utils.strToColor(b[0])), borderRadius: 4 }]
+                },
+                options: { plugins: { legend: {display:false} }, scales: { x: {ticks:{color:textColor}}, y: {ticks:{color:textColor}} } }
+            });
+
+        }, 100);
+    },
+
+    renderPlanner(el) {
+        const d = this.dashDate;
+        const activeCards = Store.data.cards.filter(c => c.status === 'active');
+        const cardHtml = activeCards.map(c => {
+            const ledger = Ledger.getMonthlyLedger(d.getFullYear(), d.getMonth()+1, c.id);
+            return `
+            <div style="flex:0 0 300px; scroll-snap-align:center; padding:10px">
+                <div class="credit-card-v3 ${c.skin}">
+                    <div class="card-status-badge">FATURA ${Utils.formatMonth(d)}</div>
+                    <div><div style="font-size:0.9rem">${c.name}</div><div style="font-size:1.4rem; font-weight:bold">${Utils.formatCurrency(ledger.totalDue)}</div></div>
+                    <div style="text-align:right; font-size:0.8rem">Vence dia ${c.dueDay}</div>
+                </div>
+            </div>`;
+        }).join('');
+
+        const filtered = Ledger.getMonthlyLedger(d.getFullYear(), d.getMonth()+1, this.plannerFilter);
+        el.innerHTML = `
+            <div class="glass-panel" style="overflow-x:auto; display:flex; gap:10px; scroll-snap-type:x mandatory">${cardHtml}</div>
+            <div class="glass-panel">
+                <h3>Detalhes (${Utils.formatMonth(d)})</h3>
+                ${filtered.items.map(i => `
+                <div class="planner-item ${i.status}">
+                    <div><strong>${i.desc}</strong> <small>(${i.note})</small><br><small>${i.cat} • ${i.cardName}</small></div>
+                    <div style="text-align:right">
+                        <div>${Utils.formatCurrency(i.val)}</div>
+                        <button class="btn btn-sm ${i.isPaid?'btn-ghost':'btn-success'}" onclick="app.togglePay('${i.id}', '${i.targetYM}')">${i.isPaid?'Desfazer':'Pagar'}</button>
+                    </div>
+                </div>`).join('') || '<p>Nada neste mês.</p>'}
+            </div>`;
+    },
+
+    renderEntries(el) {
+        const validCards = Store.data.cards.filter(c => c.status === 'active');
+        el.innerHTML = `
+        <div class="glass-panel" style="max-width:800px; margin:0 auto">
+            <h3>Novo Lançamento</h3>
+            <form onsubmit="app.addExpense(event)">
+                <div class="row">
+                    <div class="col"><label>Descrição</label><input name="desc" required></div>
+                    <div class="col"><label>Valor</label><input name="value" required placeholder="0,00"></div>
+                </div>
+                <div class="row">
+                    <div class="col"><label>Categoria</label><select name="category">${Store.data.categories.map(c=>`<option>${c}</option>`).join('')}</select></div>
+                    <div class="col"><label>Beneficiário</label><select name="beneficiary">${Store.data.beneficiaries.map(b=>`<option>${b}</option>`).join('')}</select></div>
+                </div>
+                <div class="row">
+                    <div class="col"><label>Tipo</label><select name="type" onchange="document.getElementById('cardGroup').classList.toggle('hidden', !this.value.includes('cartao') && this.value!=='parcelado'); document.getElementById('instGroup').classList.toggle('hidden', !this.value.includes('parcelado'))">
+                        <option value="avista">À vista/Pix</option><option value="cartao_avista">Cartão (1x)</option><option value="parcelado">Parcelado Cartão</option><option value="boleto_parcelado">Carnê/Boleto</option><option value="recorrente">Recorrente</option>
+                    </select></div>
+                    <div class="col hidden" id="cardGroup"><label>Cartão</label><select name="cardId"><option value="">-- Selecione --</option>${validCards.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+                </div>
+                <div class="row hidden" id="instGroup"><div class="col"><label>Parcelas</label><input type="number" name="inst" value="1"></div></div>
+                <div class="form-group"><label>Data</label><input type="date" name="date" value="${Utils.getTodayStr()}" required></div>
+                <button class="btn btn-primary" style="width:100%">Salvar</button>
+            </form>
+        </div>`;
+    },
+
+    renderCards(el) {
+        el.innerHTML = `
+        <div class="glass-panel">
+            <h3>Gerenciar Cartões</h3>
+            <form onsubmit="app.saveCard(event)">
+                <input type="hidden" name="cardId">
+                <div class="row">
+                    <div class="col"><label>Nome</label><input name="name" required></div>
+                    <div class="col"><label>Limite</label><input type="number" name="limit" required></div>
+                </div>
+                <div class="row">
+                    <div class="col"><label>Fecha</label><input type="number" name="closing" required></div>
+                    <div class="col"><label>Vence</label><input type="number" name="due" required></div>
+                    <div class="col"><label>Skin</label><select name="skin"><option value="skin-black">Black</option><option value="skin-gold">Gold</option><option value="skin-blue">Blue</option></select></div>
+                </div>
+                <button class="btn btn-primary" style="margin-top:10px">Salvar Cartão</button>
+            </form>
+        </div>
+        <div class="row">
+            ${Store.data.cards.map(c => `
+                <div class="col" style="flex:0 0 320px">
+                    <div class="credit-card-v3 ${c.skin}" style="${c.status==='sleeping'?'filter:grayscale(1)':''}">
+                        <div class="card-status-badge">${c.status==='active'?'ATIVO':'INATIVO'}</div>
+                        <div><div style="font-weight:bold">${c.name}</div><div class="card-number">•••• ${c.lastDigits||'0000'}</div></div>
+                        <div><small>LIMITE</small> <div>${Utils.formatCurrency(c.limit)}</div></div>
+                    </div>
+                    <div style="text-align:center; margin-top:5px; display:flex; gap:10px; justify-content:center">
+                        <button class="btn btn-ghost btn-sm" onclick="app.editCard('${c.id}')">Editar</button>
+                        <button class="btn btn-ghost btn-sm" onclick="app.toggleCardStatus('${c.id}')">${c.status==='active'?'Desativar':'Ativar'}</button>
+                    </div>
+                </div>`).join('')}
+        </div>`;
+    },
+
+    // --- FUNÇÕES DE AÇÃO ---
+    toggleTheme() {
+        const body = document.body;
+        const next = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        body.setAttribute('data-theme', next);
+        localStorage.setItem('functus_theme', next);
+        if(document.getElementById('themeIcon')) document.getElementById('themeIcon').className = next==='dark'?'fa-solid fa-sun':'fa-solid fa-moon';
+        this.render();
+    },
+    loadTheme() {
+        const saved = localStorage.getItem('functus_theme') || 'light';
+        document.body.setAttribute('data-theme', saved);
+        if(document.getElementById('themeIcon')) document.getElementById('themeIcon').className = saved==='dark'?'fa-solid fa-sun':'fa-solid fa-moon';
+    },
+    checkBackupStatus() {
+        const last = localStorage.getItem('functus_last_backup');
+        const btn = document.getElementById('btnBackup');
+        if(!btn) return;
+        if(!last || Utils.diffDays(new Date(), new Date(parseInt(last))) > 15) { btn.classList.add('btn-danger-pulse'); btn.classList.remove('btn-ghost'); }
+        else { btn.classList.add('btn-ghost'); btn.classList.remove('btn-danger-pulse'); }
+    },
+    navMonth(dir) { this.dashDate = Utils.addMonths(this.dashDate, dir); this.render(); },
+    switchTab(t) { 
+        this.tab = t; 
+        document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+        const active = document.querySelector(`.nav-tab[onclick="app.switchTab('${t}')"]`);
+        if(active) active.classList.add('active');
+        this.render();
+    },
+    
+    addExpense(e) {
+        e.preventDefault(); const f = e.target;
+        let val = f.value.value;
+        if(val.includes(',')) val = val.replace(/\./g, '').replace(',', '.');
+        Store.data.expenses.push({ id: Utils.uuid(), description: f.desc.value, value: parseFloat(val), type: f.type.value, category: f.category.value, beneficiary: f.beneficiary.value, date: f.date.value, installments: f.inst?f.inst.value:1, cardId: f.cardId?f.cardId.value:null, paidPeriods: [], pausedPeriods: [] });
+        Store.save(); alert("Salvo!"); f.reset(); this.render();
+    },
+    togglePay(id, ym) {
+        const exp = Store.data.expenses.find(e => e.id === id);
+        if(!exp.paidPeriods) exp.paidPeriods = [];
+        if(exp.paidPeriods.includes(ym)) exp.paidPeriods = exp.paidPeriods.filter(x => x !== ym);
+        else exp.paidPeriods.push(ym);
+        Store.save(); this.render();
+    },
+    saveCard(e) {
+        e.preventDefault(); const f = e.target; const id = f.cardId.value;
+        if(id) { const c = Store.data.cards.find(x => x.id === id); if(c) { c.name = f.name.value; c.limit = f.limit.value; c.closingDay = f.closing.value; c.dueDay = f.due.value; c.skin = f.skin.value; } }
+        else { Store.data.cards.push({ id: Utils.uuid(), name: f.name.value, limit: f.limit.value, closingDay: f.closing.value, dueDay: f.due.value, skin: f.skin.value, status: 'active', lastDigits: '0000' }); }
+        Store.save(); f.reset(); this.render();
+    },
+    editCard(id) {
+        const c = Store.data.cards.find(x => x.id === id); if(!c) return;
+        this.switchTab('cards');
+        setTimeout(() => {
+            const f = document.querySelector('form');
+            if(f) { f.cardId.value = c.id; f.name.value = c.name; f.limit.value = c.limit; f.closing.value = c.closingDay; f.due.value = c.dueDay; f.skin.value = c.skin; f.scrollIntoView(); }
+        }, 100);
+    },
+    toggleCardStatus(id) { const c = Store.data.cards.find(x => x.id === id); if(c) { c.status = c.status === 'active' ? 'sleeping' : 'active'; Store.save(); this.render(); } },
+
+    // --- IMPORTAÇÃO VAVILOV 2.0 (CORRIGIDA) ---
+    openImportModal() {
+        const validCards = Store.data.cards.filter(c => c.status === 'active');
+        const html = `
+        <div class="modal-overlay" id="importModal">
+            <div class="modal-content">
+                <div style="display:flex;justify-content:space-between"><h2>Importar</h2><button class="btn btn-ghost" onclick="document.getElementById('importModal').remove()">X</button></div>
+                <label>Cartão Destino</label><select id="impCard">${validCards.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select>
+                <textarea id="impText" rows="6" style="margin-top:10px" placeholder="Cole a fatura..."></textarea>
+                <button class="btn btn-primary" onclick="app.processImport()" style="width:100%;margin-top:10px">Processar</button>
+                <div id="impPreview" style="margin-top:10px;max-height:200px;overflow-y:auto"></div>
+                <button id="btnConfImp" class="btn btn-success hidden" onclick="app.confirmImport()" style="width:100%;margin-top:10px">Confirmar</button>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+    },
+    processImport() {
+        const txt = document.getElementById('impText').value;
+        const regex = /(\d{2}\/\d{2})\s+(.*?)(?:\s+([A-Z]?\d{1,2}\/\d{1,2}))?\s+(?:R\$\s*)?(-?[\d\.,]+)/g;
+        let match; this.importedItems = []; const year = new Date().getFullYear();
+        while ((match = regex.exec(txt)) !== null) {
+            const dateStr = match[1]; let desc = match[2].trim(); const instStr = match[3]; const valStr = match[4];
+            if (desc.includes("SALDO") || desc.includes("PAGAMENTO")) continue;
+            let val;
+            if (valStr.includes(',')) val = parseFloat(valStr.replace(/\./g, '').replace(',', '.'));
+            else val = parseFloat(valStr);
+            if (instStr) desc += ` (${instStr.replace(/[^\d\/]/g, '')})`;
+            const [d, m] = dateStr.split('/');
+            this.importedItems.push({ date: `${year}-${m}-${d}`, desc, value: val });
+        }
+        const prev = document.getElementById('impPreview');
+        prev.innerHTML = this.importedItems.map(i => `<div style="border-bottom:1px solid #ccc;padding:5px;font-size:0.8rem;display:flex;justify-content:space-between"><span>${i.date} ${i.desc}</span><b>${Utils.formatCurrency(i.value)}</b></div>`).join('');
+        if(this.importedItems.length) document.getElementById('btnConfImp').classList.remove('hidden');
+    },
+    confirmImport() {
+        const cardId = document.getElementById('impCard').value;
+        let c = 0;
+        this.importedItems.forEach(i => {
+            Store.data.expenses.push({ id: Utils.uuid(), description: i.desc, value: i.value, type: 'cartao_avista', category: 'Outros', beneficiary: 'Geral', date: i.date, installments: 1, cardId, paidPeriods: [], pausedPeriods: [] });
+            c++;
+        });
+        Store.save(); document.getElementById('importModal').remove(); alert(`${c} importados!`); this.render();
+    },
+
+    // --- PROTOCOLO FÊNIX (Limpeza) ---
+    showNewYearModal(oldYear) {
+        const html = `<div class="modal-overlay" id="ym"><div class="modal-content" style="text-align:center"><h2>Feliz Ano Novo!</h2><p>Arquivar dados de ${oldYear}?</p><button class="btn btn-primary" onclick="app.executePurge()">Sim, Limpar</button><button class="btn btn-ghost" onclick="document.getElementById('ym').remove()">Não</button></div></div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+    },
+    triggerCriticalCleanup() { app.showNewYearModal('ANTIGOS (Critico)'); },
+    executePurge() {
+        this.exportData("BACKUP_ANTES_LIMPEZA");
+        const now = new Date().getFullYear();
+        Store.data.expenses = Store.data.expenses.filter(e => {
+            if(parseInt(e.date.split('-')[0]) >= now) return true;
+            if(e.type === 'recorrente' && !e.terminationDate) return true;
+            if(e.type.includes('parcelado')) {
+                const total = parseInt(e.installments);
+                const paid = e.paidPeriods ? e.paidPeriods.length : 0;
+                if(paid < total) return true;
+            }
+            return false;
+        });
+        Store.save(); location.reload();
+    },
+    exportData(prefix='backup') {
+        const blob = new Blob([JSON.stringify(Store.data)], {type: "application/json"});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `functus_${prefix}_${Utils.getTodayStr()}.json`; a.click();
+        localStorage.setItem('functus_last_backup', Date.now()); this.checkBackupStatus();
+    },
+    importData(input) {
+        const r = new FileReader(); r.onload = e => { Store.data = JSON.parse(e.target.result); Store.save(); location.reload(); };
+        r.readAsText(input.files[0]);
+    }
+};
+
+window.app = App;
+App.init();
+</script>
+</body>
+</html>
